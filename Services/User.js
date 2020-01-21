@@ -1,26 +1,11 @@
 const bcrypt = require('bcryptjs');
 const conn = require('./db');
-const { paramParser } = require('../Utils');
 
-const getUsersCount = (exceptionId, searchParams = null, sortParams = null) => {
-  const sql = `SELECT COUNT(*) AS count FROM users WHERE id != ${exceptionId} ${searchParams !== null ? ' AND ' : ''}`;
-  const parsedSQL = paramParser(sql, searchParams, sortParams);
+const getUsers = () => {
+  const sql = 'SELECT * FROM users';
 
   return new Promise((resolve, reject) => {
-    conn.query(parsedSQL, [], (err, res) => {
-      if (err) reject(err);
-      resolve(res);
-    });
-  });
-};
-
-const getUsers = (exceptionId, searchParams = null, sortParams = null, limitParams = '0,10') => {
-  const sql = `SELECT * FROM users WHERE id != ${exceptionId} ${searchParams !== null ? ' AND ' : ''}`;
-  const parsedSQL = paramParser(sql, searchParams, sortParams);
-
-  return new Promise((resolve, reject) => {
-    const sqlStr = parsedSQL.concat(` LIMIT ${limitParams}`);
-    conn.query(sqlStr, [], (err, res) => {
+    conn.query(sql, [], (err, res) => {
       if (err) reject(err);
       resolve(res);
     });
@@ -37,8 +22,8 @@ const getUserById = (userId) => {
   });
 };
 
-const getUserByUsername = (username) => {
-  const sql = 'SELECT * FROM users WHERE username = ?';
+const getUserByEmail = (username) => {
+  const sql = 'SELECT * FROM users WHERE email = ?';
   return new Promise((resolve, reject) => {
     conn.query(sql, [username], (err, res) => {
       if (err) reject(err);
@@ -47,24 +32,16 @@ const getUserByUsername = (username) => {
   });
 };
 
-const getUsersByRole = (roleId) => {
-  const sql = 'SELECT * FROM users WHERE role_id = ?';
-  return new Promise((resolve, reject) => {
-    conn.query(sql, [roleId], (err, res) => {
-      if (err) reject(err);
-      resolve(res);
-    });
-  });
-};
-
 const createUser = (data) => {
   const {
-    name, username, password, role_id 
+    // eslint-disable-next-line camelcase
+    first_name, last_name, email, password, phone
   } = data;
   const encPass = bcrypt.hashSync(password);
-  const sql = 'INSERT INTO users(name, username, password, role_id) VALUES(?,?,?,?)';
+  const sql = 'INSERT INTO users(first_name, last_name, email, password, phone) VALUES(?,?,?,?,?)';
   return new Promise((resolve, reject) => {
-    conn.query(sql, [name, username, encPass, role_id],
+    // eslint-disable-next-line camelcase
+    conn.query(sql, [first_name, last_name, email, encPass, phone],
       (err, res) => {
         if (err) reject(err);
         resolve(res);
@@ -100,11 +77,9 @@ const deleteUser = (userId) => {
 };
 
 module.exports = {
-  getUsersCount,
   getUsers,
   getUserById,
-  getUserByUsername,
-  getUsersByRole,
+  getUserByEmail,
   createUser,
   updateUser,
   deleteUser

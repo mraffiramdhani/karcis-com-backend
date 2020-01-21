@@ -2,8 +2,10 @@ const response = require('./response');
 const redis = require('./redis');
 const paramParser = require('./paramParser');
 const urlParser = require('./urlParser');
+const { sendEmail } = require('./send_mail');
 const { hashString, compareHashedString } = require('./bcrypt');
 const { signToken, verifyToken } = require('./token');
+const { randomString, generateOTP } = require('./generator');
 
 module.exports = {
   response,
@@ -13,5 +15,8 @@ module.exports = {
   signToken,
   verifyToken,
   hashString,
-  compareHashedString
+  compareHashedString,
+  sendEmail,
+  randomString,
+  generateOTP
 };

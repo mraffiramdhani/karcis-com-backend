@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
 const conn = require('./db');
+const { hashString } = require('../Utils');
 
 const getUsers = () => {
   const sql = 'SELECT * FROM users';
@@ -37,7 +37,7 @@ const createUser = (data) => {
     // eslint-disable-next-line camelcase
     first_name, last_name, email, password, phone
   } = data;
-  const encPass = bcrypt.hashSync(password);
+  const encPass = hashString(password);
   const sql = 'INSERT INTO users(first_name, last_name, email, password, phone) VALUES(?,?,?,?,?)';
   return new Promise((resolve, reject) => {
     // eslint-disable-next-line camelcase
@@ -53,7 +53,7 @@ const updateUser = (userId, data) => {
   var user = data;
   const sql = 'UPDATE users SET ? WHERE id=?';
   if (user.password) {
-    const encPass = bcrypt.hashSync(user.password);
+    const encPass = hashString(user.password);
     user.password = encPass;
   }
   return new Promise((resolve, reject) => {

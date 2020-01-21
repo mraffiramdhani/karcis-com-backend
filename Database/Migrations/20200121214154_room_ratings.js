@@ -8,7 +8,7 @@ exports.up = (knex) => knex.schema.createTable('room_ratings', (table) => {
 
   table.foreign('hotel_id').references('hotels.id').onDelete('cascade').onUpdate('cascade');
   table.foreign('room_type_id').references('room_types.id').onDelete('cascade').onUpdate('cascade');
-  table.foreign('users_id').references('users.id').onDelete('cascade').onUpdate('cascade');
+  table.foreign('user_id').references('users.id').onDelete('cascade').onUpdate('cascade');
 });
 
 exports.down = (knex) => knex.schema.dropTable('room_ratings');

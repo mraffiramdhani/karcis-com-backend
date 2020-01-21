@@ -1,7 +1,7 @@
 {
-  "name": "al-dicoding",
+  "name": "karcis-com",
   "version": "1.0.0",
-  "description": "Back End API for Challenge Submission on Dicoding",
+  "description": "Back End API for Karcis.com",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,9 +18,13 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "formidable": "^1.2.1",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.1.0",
     "path": "^0.12.7",
+    "qs": "^6.9.1",
+    "redis": "^2.8.0",
+    "redis-server": "^1.2.2",
     "response-time": "^2.3.2"
   },
   "devDependencies": {

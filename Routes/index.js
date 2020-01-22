@@ -1,5 +1,10 @@
 const express = require('express'),
-  { HomeController, UserController, AuthController } = require('../Controllers'),
+  {
+    HomeController,
+    UserController,
+    AuthController,
+    HotelController
+  } = require('../Controllers'),
   router = express.Router();
 
 router.get('/', HomeController.index);
@@ -20,5 +25,10 @@ router
   .get('/user/:id', UserController.getUserById)
   .patch('/user/:id', UserController.updateUser)
   .delete('/user/:id', UserController.deleteUser);
+
+// Hotel Routes
+router
+  .get('/hotel', HotelController.getHotels)
+  .get('/hotel/:id', HotelController.getHotelById);
 
 module.exports = router;

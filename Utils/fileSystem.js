@@ -33,7 +33,7 @@ const uploadProfileImage = async (request) => {
         }
       })
       .on('aborted', () => {
-        console.error('Request aborted by the user');
+        formParse._error('Request Aborted By User');
       })
       .on('error', (err) => {
         reject(err);
@@ -44,6 +44,50 @@ const uploadProfileImage = async (request) => {
   });
 };
 
+const uploadHotelImages = async (request) => {
+  const data = {};
+  data.image = [];
+  const form = new formidable.IncomingForm();
+  form.uploadDir = path.join(__dirname + './../Public/Images/Hotel/');
+  form.keepExtensions = true;
+  form.maxFieldsSize = 2 * 1024 * 1024;
+  form.multiples = true;
+
+  return new Promise((resolve, reject) => {
+    formParse.onPart = (part) => {
+      if (!part.filename || part.filename.match(/\.(jpg|jpeg|png)$/i)) {
+        // Let formidable handle the non file-pars and valid file types
+        formParse.handlePart(part);
+      }
+      else {
+        // eslint-disable-next-line no-underscore-dangle
+        formParse._error('File type is not supported');
+      }
+    };
+    formParse.parse(request)
+      .on('field', (name, field) => {
+        data[name] = field;
+      })
+      .on('file', (name, file) => {
+        if (file !== null || file.name !== '') {
+          const fileName = name + '_' + Date.now() + '_' + file.name;
+          fs.rename(file.path, formParse.uploadDir + fileName, (error) => error);
+          data['image'].push(fileName);
+        }
+      })
+      .on('aborted', () => {
+        formParse._error('Request Aborted By User');
+      })
+      .on('error', (err) => {
+        reject(err);
+      })
+      .on('end', () => {
+        resolve(data);
+      });
+  })
+}
+
 module.exports = {
-  uploadProfileImage
+  uploadProfileImage,
+  uploadHotelImages
 };

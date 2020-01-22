@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable max-len */
 /* eslint-disable no-else-return */
 const {
   response, redis, urlParser
@@ -5,21 +7,23 @@ const {
 const { Hotel } = require('../Services');
 
 const getHotels = async (req, res) => {
-  const { search, sort, perPage, page } = req.query;
+  const {
+    search, sort, perPage, page
+  } = req.query;
 
   var numRows;
   var numPerPage = parseInt(perPage, 10) || 10;
-  var currectPage = parseInt(page, 10) || 1;
+  var currentPage = parseInt(page, 10) || 1;
   var numPages;
-  var skip = (currectPage - 1) * numPerPage;
+  var skip = (currentPage - 1) * numPerPage;
 
   await Hotel.getHotelsCount(search, sort).then((result) => {
     numRows = result[0].hotelCount;
     numPages = Math.ceil(numRows / numPerPage);
   }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Count.', error));
 
-  var limit = skip + ',' + numPerPage;
-  var redisKey = 'hotel_' + encodeURI(search+sort+perPage+currectPage);
+  const limit = `${skip},${numPerPage}`;
+  const redisKey = `hotel_${encodeURI(search + sort + perPage + currentPage)}`;
 
   return redis.get(redisKey, async (ex, data) => {
     if (data) {
@@ -33,20 +37,20 @@ const getHotels = async (req, res) => {
           hotels
         };
 
-        if (currectPage <= numPages) {
+        if (currentPage <= numPages) {
           result.pagination = {
             currentPage,
             recordPerPage: numPerPage,
-            prev: currectPage > 1 ? currectPage - 1 : undefined,
-            next: currectPage < numPages ? currectPage + 1 : undefined,
-            prevLink: currectPage > 1 ? urlParser(search, sort, currectPage - 1, numPerPage) : undefined,
-            nextLink: currectPage < numPages ? urlParser(search, sort, currectPage + 1, numPerPage) : undefined,
-          }
+            prev: currentPage > 1 ? currentPage - 1 : undefined,
+            next: currentPage < numPages ? currentPage + 1 : undefined,
+            prevLink: currentPage > 1 ? urlParser(search, sort, currentPage - 1, numPerPage) : undefined,
+            nextLink: currentPage < numPages ? urlParser(search, sort, currentPage + 1, numPerPage) : undefined
+          };
         }
         else {
           result.pagination = {
-            err: 'queried page ' + currectPage + ' is >= to maximum page number ' + numPages
-          }
+            err: `queried page ${currentPage} is >= to maximum page number ${numPages}`
+          };
         }
 
         redis.setex(redisKey, 10, JSON.stringify(result));
@@ -72,72 +76,56 @@ const getHotelById = async (req, res) => {
 };
 
 const createHotel = async (req, res) => {
-  const { name, description, address, city_id, latitude, longitude, province_id } = req.body;
-}
+  const {
+    name, description, address, city_id, latitude, longitude, province_id
+  } = req.body;
+  const data = {
+    name, description, address, city_id, latitude, longitude, province_id
+  };
+  await Hotel.createHotel(data).then((result) => {
+    if (result.insertId > 0) {
+      return response(res, 200, true, 'Hotel Created Successfuly.', result);
+    }
+    else {
+      return response(res, 200, false, 'Creating Hotel Failed. Please Try Again.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Creating Hotel.', error));
+};
 
-// // eslint-disable-next-line consistent-return
-// const createUser = async (req, res) => {
-//   let data = {};
-//   await uploadProfileImage(req).then(async (result) => {
-//     data = result;
-//     const encPassword = hashString(data.password);
-//     data.password = encPassword;
-//     // eslint-disable-next-line camelcase
-//     // eslint-disable-next-line consistent-return
-//     await User.createUser(data).then(async (_result) => {
-//       const { insertId } = _result;
-//       if (insertId !== 0) {
-//         await User.getUserById(insertId).then((__result) => {
-//           if (__result.length > 0) {
-//             return response(res, 200, true, 'User Created Successfuly.', __result[0]);
-//           }
-//           else {
-//             return response(res, 200, false, 'Creating User Failed. Please Try Again.');
-//           }
-//         }).catch((error) => response(res, 200, false, 'Error At Fetching User Data.', error));
-//       }
-//       else {
-//         return response(res, 200, false, 'Error At Creating User.');
-//       }
-//     }).catch((error) => response(res, 200, false, 'Error At Creating User.', error));
-//   }).catch((error) => response(res, 200, false, 'Error At Uploading Image.', error));
-// };
+const updateHotel = async (req, res) => {
+  const { id } = req.params;
+  const {
+    name, description, address, city_id, latitude, longitude, province_id
+  } = req.body;
+  const data = {
+    name, description, address, city_id, latitude, longitude, province_id
+  };
+  await Hotel.updateHotel(id, data).then((result) => {
+    if (result.affectedRows > 0) {
+      return response(res, 200, true, 'Hotel Updated Successfuly.', result);
+    }
+    else {
+      return response(res, 200, false, 'Updating Hotel Failed. Please Try Again');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Updating Hotel.', error));
+};
 
-// const updateUser = async (req, res) => {
-//   const { id } = req.params;
-
-//   let data = {};
-//   await uploadProfileImage(req).then(async (result) => {
-//     data = result;
-//     if (data.password !== '' || data.password) {
-//       const encPassword = hashString(data.password);
-//       data.password = encPassword;
-//     }
-//     // eslint-disable-next-line consistent-return
-//     await User.updateUser(id, data).then(async (_result) => {
-//       if (_result.affectedRows === 0) {
-//         return response(res, 200, false, 'Data not Found.');
-//       }
-//       else {
-//         await User.getUserById(id).then((__result) => response(res, 200, true, 'User Updated Successfully.', __result[0])).catch((error) => response(res, 200, false, 'Error At Fetching User Data.', error));
-//       }
-//     }).catch((error) => response(res, 200, false, 'Error At Updating User Data.', error));
-//   }).catch((error) => response(res, 200, false, 'Error At Uploading Image.', error));
-// };
-
-// const deleteUser = async (req, res) => {
-//   const { id } = req.params;
-//   await User.deleteUser(id).then((result) => {
-//     if (result.affectedRows > 0) {
-//       return response(res, 200, true, 'User Deleted Successfully.', result);
-//     }
-//     else {
-//       return response(res, 200, false, 'Deleting User Failed. Please Try Again.');
-//     }
-//   }).catch((error) => response(res, 200, false, 'Error At Deleting User.', error));
-// };
+const deleteHotel = async (req, res) => {
+  const { id } = req.params;
+  await Hotel.deleteHotel(id).then((result) => {
+    if (result.affectedRows > 0) {
+      return response(res, 200, true, 'Hotel Deleted Successfuly.', result);
+    }
+    else {
+      return response(res, 200, false, 'Deleting Hotel Failed. Please Try Again.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Deleting Hotel.', error));
+};
 
 module.exports = {
   getHotels,
-  getHotelById
+  getHotelById,
+  createHotel,
+  updateHotel,
+  deleteHotel
 };

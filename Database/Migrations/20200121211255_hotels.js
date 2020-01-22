@@ -11,6 +11,7 @@ exports.up = (knex) => knex.schema.createTable('hotels', (table) => {
 
   table.foreign('city_id').references('cities.id').onDelete('cascade').onUpdate('cascade');
   table.foreign('province_id').references('provinces.id').onDelete('cascade').onUpdate('cascade');
+  table.unique('name');
 });
 
 exports.down = (knex) => knex.schema.dropTable('hotels');

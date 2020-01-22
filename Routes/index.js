@@ -18,6 +18,7 @@ router
   .post('/user', UserController.createUser)
   .get('/user', UserController.getUsers)
   .get('/user/:id', UserController.getUserById)
-  .patch('/user/:id', UserController.updateUser);
+  .patch('/user/:id', UserController.updateUser)
+  .delete('/user/:id', UserController.deleteUser);
 
 module.exports = router;

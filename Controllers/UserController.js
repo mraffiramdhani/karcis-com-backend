@@ -92,9 +92,22 @@ const updateUser = async (req, res) => {
   }).catch((error) => response(res, 200, false, 'Error At Uploading Image.', error));
 };
 
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  await User.deleteUser(id).then((result) => {
+    if (result.affectedRows > 0) {
+      return response(res, 200, true, 'User Deleted Successfully.', result);
+    }
+    else {
+      return response(res, 200, false, 'Deleting User Failed. Please Try Again.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Deleting User.', error));
+};
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
-  updateUser
+  updateUser,
+  deleteUser
 };

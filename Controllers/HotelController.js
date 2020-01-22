@@ -71,6 +71,10 @@ const getHotelById = async (req, res) => {
   }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Data.', error));
 };
 
+const createHotel = async (req, res) => {
+  const { name, description, address, city_id, latitude, longitude, province_id } = req.body;
+}
+
 // // eslint-disable-next-line consistent-return
 // const createUser = async (req, res) => {
 //   let data = {};

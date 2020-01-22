@@ -35,13 +35,13 @@ const getUserByEmail = (username) => {
 const createUser = (data) => {
   const {
     // eslint-disable-next-line camelcase
-    first_name, last_name, email, password, phone
+    first_name, last_name, email, password, phone, title, image
   } = data;
   const encPass = hashString(password);
-  const sql = 'INSERT INTO users(first_name, last_name, email, password, phone) VALUES(?,?,?,?,?)';
+  const sql = 'INSERT INTO users(first_name, last_name, email, password, phone, title, image) VALUES(?,?,?,?,?,?,?)';
   return new Promise((resolve, reject) => {
     // eslint-disable-next-line camelcase
-    conn.query(sql, [first_name, last_name, email, encPass, phone],
+    conn.query(sql, [first_name, last_name, email, encPass, phone, title, image],
       (err, res) => {
         if (err) reject(err);
         resolve(res);
@@ -58,7 +58,7 @@ const updateUser = (userId, data) => {
   }
   return new Promise((resolve, reject) => {
     conn.query(sql,
-      [user, userId],
+      [data, userId],
       (err, res) => {
         if (err) reject(err);
         resolve(res);

@@ -1,166 +1,100 @@
-// /* eslint-disable no-else-return */
-// const qs = require('qs'),
-//   bcrypt = require('bcryptjs');
-// const {
-//   response, redis, urlParser, signToken, verifyToken
-// } = require('../Utils');
-// const { User, Token } = require('../Services');
+/* eslint-disable no-else-return */
+const {
+  response, redis, hashString, uploadProfileImage
+} = require('../Utils');
+const { User } = require('../Services');
 
-// // const getUsers = async (req, res) => {
-// //   const { search, sort } = req.query;
-// //   var numRows;
-// //   var numPerPage = parseInt(req.query.perPage, 10) || 10;
-// //   var page = parseInt(req.query.page, 10) || 1;
-// //   var numPages;
-// //   var skip = (page - 1) * numPerPage;
-// //   var limit;
+const getUsers = async (req, res) => {
+  const redisKey = 'user_index';
 
-// //   await User.getUsersCount(1, search, sort).then((count) => {
-// //     numRows = count[0].count;
-// //     numPages = Math.ceil(numRows / numPerPage);
-// //   }).catch((error) => response(res, 200, false, 'Error. Fetching User Count Failed.', error));
+  return redis.get(redisKey, async (ex, data) => {
+    if (data) {
+      const resultJSON = JSON.parse(data);
+      return response(res, 200, true, 'Data Found - Redis Cache', resultJSON);
+    }
+    else {
+      const users = await User.getUsers();
+      if (users) {
+        // eslint-disable-next-line no-param-reassign
+        users.forEach((v) => delete v.password);
+        const result = {
+          users
+        };
+        redis.setex(redisKey, 10, JSON.stringify(result));
+        return response(res, 200, true, 'Data Found - Database Query', result);
+      }
+      else {
+        return response(res, 200, false, 'Data not Found');
+      }
+    }
+  });
+};
 
-// //   limit = `${skip},${numPerPage}`;
-// //   const redisKey = qs.stringify({ user_index: '', data: req.query });
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+  await User.getUserById(id).then((result) => {
+    if (result.length > 0) {
+      return response(res, 200, true, 'Data Found.', result[0]);
+    }
+    else {
+      return response(res, 200, false, 'Data not Found.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Validating User', error));
+};
 
-// //   return redis.get(redisKey, async (ex, data) => {
-// //     if (data) {
-// //       const resultJSON = JSON.parse(data);
-// //       return response(res, 200, true, 'Data Found - Redis Cache', resultJSON);
-// //     }
-// //     else {
-// //       const users = await User.getUsers(1, search, sort, limit);
-// //       if (users) {
-// //         // eslint-disable-next-line no-param-reassign
-// //         users.forEach((v) => delete v.password);
-// //         const result = {
-// //           users
-// //         };
-// //         if (page <= numPages) {
-// //           result.pagination = {
-// //             current: page,
-// //             perPage: numPerPage,
-// //             prev: page > 1 ? page - 1 : undefined,
-// //             next: page < numPages ? page + 1 : undefined,
-// //             prevLink: page > 1 ? encodeURI(urlParser(search, sort, page - 1, numPerPage)) : undefined,
-// //             nextLink: page < numPages ? encodeURI(urlParser(search, sort, page + 1, numPerPage)) : undefined
-// //           };
-// //         }
-// //         else {
-// //           result.pagination = {
-// //             err: `queried page ${page} is >= to maximum page number ${numPages}`
-// //           };
-// //         }
-// //         redis.setex(redisKey, 10, JSON.stringify(result));
-// //         return response(res, 200, true, 'Data Found - Database Query', result);
-// //       }
-// //       else {
-// //         return response(res, 200, false, 'Data not Found');
-// //       }
-// //     }
-// //   });
-// // };
+// eslint-disable-next-line consistent-return
+const createUser = async (req, res) => {
+  let data = {};
+  await uploadProfileImage(req).then(async (result) => {
+    data = result;
+    const encPassword = hashString(data.password);
+    data.password = encPassword;
+    // eslint-disable-next-line camelcase
+    // eslint-disable-next-line consistent-return
+    await User.createUser(data).then(async (_result) => {
+      const { insertId } = _result;
+      if (insertId !== 0) {
+        await User.getUserById(insertId).then((__result) => {
+          if (__result.length > 0) {
+            return response(res, 200, true, 'User Created Successfuly.', __result[0]);
+          }
+          else {
+            return response(res, 200, false, 'Creating User Failed. Please Try Again.');
+          }
+        }).catch((error) => response(res, 200, false, 'Error At Fetching User Data.', error));
+      }
+      else {
+        return response(res, 200, false, 'Error At Creating User.');
+      }
+    }).catch((error) => response(res, 200, false, 'Error At Creating User.', error));
+  }).catch((error) => response(res, 200, false, 'Error At Uploading Image.', error));
+};
 
-// // const getUserById = async (req, res) => {
-// //   const { id } = req.params;
-// //   const user = await User.getUserById(id);
-// //   if (user) {
-// //     return response(res, 200, true, 'Data Found.', user[0]);
-// //   }
-// //   else {
-// //     return response(res, 200, false, 'Data not Found.');
-// //   }
-// // };
+const updateUser = async (req, res) => {
+  const { id } = req.params;
 
-// // eslint-disable-next-line consistent-return
-// const registerUser = async (req, res) => {
-//   const {
-//     // eslint-disable-next-line camelcase
-//     first_name, last_name, email, password, phone
-//   } = req.body;
-//   var data = {
-//     first_name, last_name, email, password, phone
-//   };
+  let data = {};
+  await uploadProfileImage(req).then(async (result) => {
+    data = result;
+    if (data.password !== '' || data.password) {
+      const encPassword = hashString(data.password);
+      data.password = encPassword;
+    }
+    // eslint-disable-next-line consistent-return
+    await User.updateUser(id, data).then(async (_result) => {
+      if (_result.affectedRows === 0) {
+        return response(res, 200, false, 'Data not Found.');
+      }
+      else {
+        await User.getUserById(id).then((__result) => response(res, 200, true, 'User Updated Successfully.', __result[0])).catch((error) => response(res, 200, false, 'Error At Fetching User Data.', error));
+      }
+    }).catch((error) => response(res, 200, false, 'Error At Updating User Data.', error));
+  }).catch((error) => response(res, 200, false, 'Error At Uploading Image.', error));
+};
 
-//   if (!data.first_name || !data.last_name || !data.email || !data.password) {
-//     return response(res, 200, false, 'Please provide a valid data.');
-//   }
-//   else {
-//     await User.createUser(data).then((result) => {
-//       const id = result[0].insertId;
-//       const token = signToken({
-//         id, first_name, last_name, email
-//       });
-//       Token.putToken({ token }, (err) => {
-//         if (err) {
-//           return response(res, 200, false, 'Error', err);
-//         }
-//         else {
-//           return response(res, 200, true, 'User Created Successfully.', {
-//             token, first_name, last_name, email
-//           });
-//         }
-//       });
-//     }).catch((error) => response(res, 200, false, 'Error.', error));
-//   }
-// };
-
-// const checkToken = async (req, res) => {
-//   const { token } = req.body;
-//   await Token.isRevoked(token).then((data) => {
-//     const auth = verifyToken(token);
-//     if (data.length === 0) {
-//       if (auth.role_id === 1) {
-//         return response(res, 200, true, 'Authentication Success.', {
-//           role: 'administrator',
-//           name: auth.name
-//         });
-//       }
-//       else if (auth.role_id === 2) {
-//         return response(res, 200, true, 'Authentication Success.', {
-//           role: 'restaurant',
-//           name: auth.name
-//         });
-//       }
-//       else if (auth.role_id === 3) {
-//         return response(res, 200, true, 'Authentication Success.', {
-//           role: 'customer',
-//           name: auth.name
-//         });
-//       }
-//     }
-//     else {
-//       return response(res, 200, true, 'Session Expired. Please Login Again.');
-//     }
-//   }).catch((error) => {
-//     return response(res, 200, false, 'Error.', error);
-//   });
-// };
-
-// // eslint-disable-next-line consistent-return
-// const loginUser = async (req, res) => {
-//   const { username, password } = req.body;
-
-//   if (!username || !password) {
-//     return response(res, 200, false, 'Please Provide a Valid Data.');
-//   }
-//   else {
-//     const user = await User.getUserByUsername(username);
-//     if (user.length > 0) {
-//       if (bcrypt.compareSync(password, user[0].password)) {
-//         // eslint-disable-next-line camelcase
-//         const { id, name, role_id } = user[0];
-//         const token = signToken({
-//           id, name, username, role_id
-//         });
-//       }
-//     }
-//   }
-// }
-
-// module.exports = {
-//   getUsers,
-//   getUserById,
-//   registerUser,
-//   checkToken
-// };
+module.exports = {
+  getUsers,
+  getUserById,
+  createUser,
+  updateUser
+};

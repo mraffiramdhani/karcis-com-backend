@@ -52,6 +52,9 @@ const login = async (req, res) => {
             token, first_name, last_name, email
           })).catch((error) => response(res, 200, false, 'Error At Putting Token Into Database', error));
         }
+        else {
+          return response(res, 200, false, 'Password Missmatch. Please Try Again.');
+        }
       }
       else {
         return response(res, 200, false, 'User not Found.');
@@ -97,10 +100,25 @@ const checkOTP = async (req, res) => {
   }).catch((error) => response(res, 200, false, 'Error At OTP Checking', error));
 };
 
+const resetPassword = async (req, res) => {
+  const { email, password } = req.body;
+  // eslint-disable-next-line consistent-return
+  await User.getUserByEmail(email).then(async (result) => {
+    if (result.length > 0) {
+      const { id } = result[0];
+      await User.updateUser(id, { password }).then((_result) => response(res, 200, true, 'Change Password Success.', _result)).catch((error) => response(res, 200, false, 'Change Password Failed.', error));
+    }
+    else {
+      return response(res, 200, false, 'Email Not Found.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Validating User Email.', error));
+};
+
 module.exports = {
   register,
   login,
   logout,
   forgotPassword,
-  checkOTP
+  checkOTP,
+  resetPassword
 };

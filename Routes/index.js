@@ -1,9 +1,10 @@
 const express = require('express'),
   {
-    HomeController,
-    UserController,
     AuthController,
-    HotelController
+    BalanceController,
+    HomeController,
+    HotelController,
+    UserController
   } = require('../Controllers'),
   router = express.Router();
 const { auth } = require('../Services/middleware');
@@ -34,5 +35,11 @@ router
   .post('/hotel', auth, HotelController.createHotel)
   .patch('/hotel/:id', auth, HotelController.updateHotel)
   .delete('/hotel/:id', auth, HotelController.deleteHotel);
+
+// Balance Routes
+router
+  .get('/balance', auth, BalanceController.getBalanceByUser)
+  .get('/balance/history', auth, BalanceController.getBalanceHistories)
+  .patch('/top-up', auth, BalanceController.updateBalance);
 
 module.exports = router;

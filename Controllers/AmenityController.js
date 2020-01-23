@@ -17,7 +17,7 @@ const getAmenity = async (req, res) => {
   const { id } = req.params;
   await Amenity.getAmenityById(id).then((result) => {
     if (result.length > 0) {
-      return response(res, 200, true, 'Data Found.', result);
+      return response(res, 200, true, 'Data Found.', result[0]);
     }
     else {
       return response(res, 200, false, 'Data Not Found.');

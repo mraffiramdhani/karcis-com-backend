@@ -5,8 +5,8 @@ const urlParser = require('./urlParser');
 const { sendEmail } = require('./mail');
 const { hashString, compareHashedString } = require('./bcrypt');
 const { signToken, verifyToken } = require('./token');
-const { randomString, generateOTP } = require('./generator');
-const { uploadProfileImage } = require('./fileSystem');
+const { randomString, randomNumber, range, generateOTP } = require('./generator');
+const { uploadProfileImage, uploadHotelImages } = require('./fileSystem');
 
 module.exports = {
   response,
@@ -19,6 +19,9 @@ module.exports = {
   compareHashedString,
   sendEmail,
   randomString,
+  randomNumber,
+  range,
   generateOTP,
-  uploadProfileImage
+  uploadProfileImage,
+  uploadHotelImages
 };

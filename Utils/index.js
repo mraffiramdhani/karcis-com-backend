@@ -6,7 +6,7 @@ const { sendEmail } = require('./mail');
 const { hashString, compareHashedString } = require('./bcrypt');
 const { signToken, verifyToken } = require('./token');
 const { randomString, randomNumber, range, generateOTP } = require('./generator');
-const { uploadProfileImage, uploadHotelImages } = require('./fileSystem');
+const { uploadProfileImage, uploadHotelImages, uploadAmenityIcon } = require('./fileSystem');
 
 module.exports = {
   response,
@@ -23,5 +23,6 @@ module.exports = {
   range,
   generateOTP,
   uploadProfileImage,
-  uploadHotelImages
+  uploadHotelImages,
+  uploadAmenityIcon
 };

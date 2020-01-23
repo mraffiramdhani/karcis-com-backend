@@ -2,7 +2,7 @@
 exports.up = (knex) => knex.schema.createTable('hotel_rooms', (table) => {
   table.integer('room_type_id').unsigned();
   table.integer('hotel_id').unsigned();
-  table.decimal('cost').nullable();
+  table.decimal('cost', 12, 2).nullable();
   table.integer('capacity').nullable();
   table.text('description');
 

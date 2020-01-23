@@ -100,9 +100,9 @@ const updateHotel = async (req, res) => {
   const data = {
     name, description, address, city_id, latitude, longitude, province_id
   };
-  await Hotel.updateHotel(id, data).then((result) => {
+  await Hotel.updateHotel(id, data).then(async (result) => {
     if (result.affectedRows > 0) {
-      return response(res, 200, true, 'Hotel Updated Successfuly.', result);
+      await Hotel.getHotelById(id).then((_result) => response(res, 200, true, 'Hotel Updated Successfuly.', _result)).catch((error) => response(res, 200, false, 'Error At Fetching Hotel.', error));
     }
     else {
       return response(res, 200, false, 'Updating Hotel Failed. Please Try Again');

@@ -11,6 +11,16 @@ const getRooms = (hotelId) => {
   });
 };
 
+const getCheapestRooms = (hotelId) => {
+  const sql = 'SELECT * FROM hotel_rooms WHERE hotel_id = ? ORDER BY cost ASC LIMIT 1';
+  return new Promise((resolve, reject) => {
+    conn.query(sql, [hotelId], (err, res) => {
+      if(err) reject(err);
+      resolve(res);
+    });
+  });
+};
+
 const getRoom = (roomId, hotelId) => {
   const sql = 'SELECT * FROM hotel_rooms WHERE id = ? AND hotel_id = ?';
   return new Promise((resolve, reject) => {
@@ -55,6 +65,7 @@ const deleteRoom = (roomId, hotelId) => {
 
 module.exports = {
   getRooms,
+  getCheapestRooms,
   getRoom,
   createRoom,
   updateRoom,

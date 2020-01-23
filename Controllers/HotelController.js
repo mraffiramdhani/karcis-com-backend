@@ -24,7 +24,6 @@ const getHotels = async (req, res) => {
 
   const limit = `${skip},${numPerPage}`;
   const redisKey = `hotel_${encodeURI(urlParser(search, sort, currentPage, numPerPage))}`;
-  console.log(redisKey);
 
   return redis.get(redisKey, async (ex, data) => {
     if (data) {
@@ -33,10 +32,15 @@ const getHotels = async (req, res) => {
     }
     else {
       const hotels = await Hotel.getHotels(search, sort, limit);
-      const cheapestRoom = await HotelRooms.getRooms()
       if (hotels) {
+        for(let i = 0; i < hotels.length; i++){
+          const cheapestRoom = await HotelRooms.getCheapestRooms(hotels[i].id);
+          hotels[i].cost = cheapestRoom[0].cost;
+        }
+
         const result = {
-          hotels
+          hotels,
+
         };
 
         if (currentPage <= numPages) {

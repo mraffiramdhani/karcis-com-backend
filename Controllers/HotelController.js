@@ -39,8 +39,7 @@ const getHotels = async (req, res) => {
         }
 
         const result = {
-          hotels,
-
+          hotels
         };
 
         if (currentPage <= numPages) {

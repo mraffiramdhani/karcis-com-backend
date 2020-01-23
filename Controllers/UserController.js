@@ -2,7 +2,7 @@
 const {
   response, redis, hashString, uploadProfileImage
 } = require('../Utils');
-const { User } = require('../Services');
+const { User, Balance, BalanceHistories } = require('../Services');
 
 const getUsers = async (req, res) => {
   const redisKey = 'user_index';
@@ -55,6 +55,7 @@ const createUser = async (req, res) => {
     await User.createUser(data).then(async (_result) => {
       const { insertId } = _result;
       if (insertId !== 0) {
+        await Balance.createBalance(insertId).then(async (balance) => await BalanceHistories.createBalanceHistory(insertId, balance.insertId, { balance: 1000 })).catch((error) => response(res, 200, false, 'Error At Storing Initial Balance.', error));
         await User.getUserById(insertId).then((__result) => {
           if (__result.length > 0) {
             return response(res, 200, true, 'User Created Successfuly.', __result[0]);

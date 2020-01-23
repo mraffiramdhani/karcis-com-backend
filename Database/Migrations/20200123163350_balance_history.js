@@ -4,7 +4,7 @@ exports.up = (knex) => knex.schema.createTable('balance_histories', (table) => {
   table.integer('user_id').unsigned();
   table.integer('balance_id').unsigned();
   table.decimal('balance', 12, 2);
-  table.decimal('top_up', 12, 2);
+  table.decimal('top_up', 12, 2).defaultTo(0);
   table.dateTime('created_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP'));
   table.dateTime('updated_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

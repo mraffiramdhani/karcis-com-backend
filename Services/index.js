@@ -1,4 +1,6 @@
 const Amenity = require('./Amenity');
+const Balance = require('./Balance');
+const BalanceHistories = require('./BalanceHistories');
 const City = require('./City');
 const Hotel = require('./Hotel');
 const HotelAmenities = require('./HotelAmenities');
@@ -16,6 +18,8 @@ const User = require('./User');
 
 module.exports = {
   Amenity,
+  Balance,
+  BalanceHistories,
   City,
   Hotel,
   HotelAmenities,

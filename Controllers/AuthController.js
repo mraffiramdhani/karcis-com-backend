@@ -4,7 +4,7 @@ const { forgot_password } = require('../Utils/email');
 const {
   response, signToken, compareHashedString, sendEmail, generateOTP
 } = require('../Utils');
-const { User, Token, OTP } = require('../Services');
+const { User, Token, OTP, Balance, BalanceHistories } = require('../Services');
 
 // eslint-disable-next-line consistent-return
 const register = async (req, res) => {
@@ -21,6 +21,9 @@ const register = async (req, res) => {
   else {
     await User.createUser(data).then(async (result) => {
       const id = result.insertId;
+      await Balance.createBalance(id).then(async (balance) => {
+        await BalanceHistories.createBalanceHistory(id, balance.insertId, { balance: 1000 });
+      }).catch((error) => response(res, 200, false, 'Error At Storing Initial Balance.', error));
       const token = signToken({
         id, first_name, last_name, email
       });

@@ -30,7 +30,7 @@ const updateBalance = async (req, res) => {
   const { id } = req.auth;
   const { value } = req.body;
   await Balance.updateBalance(id, value).then(async (result) => {
-    if (result.insertId) {
+    if (result.affectedRows > 0) {
       await Balance.getBalance(id).then(async (_result) => {
         if (_result.length > 0) {
           const data = { balance: _result[0].balance, top_up: value}

@@ -22,7 +22,7 @@ const createBalance = (userId) => {
 };
 
 const updateBalance = (userId, balance) => {
-  const sql = 'UPDATE balances SET balance = ?, WHERE user_id = ?';
+  const sql = 'UPDATE balances SET balance = balance + ? WHERE user_id = ?';
   return new Promise((resolve, reject) => {
     conn.query(sql, [balance, userId], (err, res) => {
       if (err) reject(err);

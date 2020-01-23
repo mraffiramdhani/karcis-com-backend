@@ -7,6 +7,7 @@ const createRecord = (knex, id) => knex('hotels').insert({
   name: faker.company.companyName(),
   description: faker.lorem.paragraphs(1),
   address: faker.address.streetAddress(true),
+  star: faker.random.number(5),
   city_id: 1,
   longitude: faker.address.longitude(),
   latitude: faker.address.latitude(),

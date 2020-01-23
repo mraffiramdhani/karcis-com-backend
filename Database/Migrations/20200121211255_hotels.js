@@ -4,6 +4,7 @@ exports.up = (knex) => knex.schema.createTable('hotels', (table) => {
   table.string('name');
   table.text('description');
   table.text('address');
+  table.integer('star').defaultTo(1);
   table.integer('city_id').unsigned();
   table.string('latitude');
   table.string('longitude');

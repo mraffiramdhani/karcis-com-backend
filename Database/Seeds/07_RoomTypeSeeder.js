@@ -16,7 +16,7 @@ exports.seed = (knex) => knex('room_types').del()
     // Inserts seed entries
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < type.length; i++) {
-        records.push(createRecord(knex, type[i]));
+      records.push(createRecord(knex, type[i]));
     }
 
     // eslint-disable-next-line no-console

@@ -4,7 +4,7 @@
 const {
   response, redis, urlParser
 } = require('../Utils');
-const { Hotel } = require('../Services');
+const { Hotel, HotelRooms, HotelAmenities, Amenity } = require('../Services');
 
 const getHotels = async (req, res) => {
   const {
@@ -23,7 +23,8 @@ const getHotels = async (req, res) => {
   }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Count.', error));
 
   const limit = `${skip},${numPerPage}`;
-  const redisKey = `hotel_${encodeURI(search + sort + perPage + currentPage)}`;
+  const redisKey = `hotel_${encodeURI(urlParser(search, sort, currentPage, numPerPage))}`;
+  console.log(redisKey);
 
   return redis.get(redisKey, async (ex, data) => {
     if (data) {
@@ -32,6 +33,7 @@ const getHotels = async (req, res) => {
     }
     else {
       const hotels = await Hotel.getHotels(search, sort, limit);
+      const cheapestRoom = await HotelRooms.getRooms()
       if (hotels) {
         const result = {
           hotels
@@ -65,9 +67,19 @@ const getHotels = async (req, res) => {
 
 const getHotelById = async (req, res) => {
   const { id } = req.params;
-  await Hotel.getHotelById(id).then((result) => {
+  await Hotel.getHotelById(id).then(async (result) => {
     if (result.length > 0) {
-      return response(res, 200, true, 'Data Found.', result);
+      const arr = [];
+      await HotelAmenities.getAmenities(id).then(async (_result) => {
+        if (_result.length > 0) {
+          for(let i = 0 ; i < _result.length ; i++){
+            const hotelAmenity = await Amenity.getAmenityById(_result[i].amenities_id);
+            arr.push(hotelAmenity[0]);
+          }
+        }
+      }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Amenity.', error));
+      result[0].amenities = arr;
+      return response(res, 200, true, 'Data Found.', result[0]);
     }
     else {
       return response(res, 200, true, 'Data Not Found.');

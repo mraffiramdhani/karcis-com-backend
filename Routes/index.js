@@ -1,5 +1,6 @@
 const express = require('express'),
   {
+    AmenityController,
     AuthController,
     BalanceController,
     HomeController,
@@ -41,5 +42,14 @@ router
   .get('/balance', auth, BalanceController.getBalanceByUser)
   .get('/balance/history', auth, BalanceController.getBalanceHistories)
   .patch('/top-up', auth, BalanceController.updateBalance);
+
+// AmenityController
+router
+  .get('/amenity', AmenityController.getAmenities)
+  .get('/amenity/:id', AmenityController.getAmenity)
+  .post('/amenity', auth, AmenityController.createAmenity)
+  .patch('/amenity/:id', auth, AmenityController.updateAmenity)
+  .delete('/amenity/:id', auth, AmenityController.deleteAmenity);
+
 
 module.exports = router;

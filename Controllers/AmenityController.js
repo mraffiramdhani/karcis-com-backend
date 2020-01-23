@@ -29,10 +29,10 @@ const createAmenity = async (req, res) => {
   var data = {};
   await uploadAmenityIcon(req).then(async (result) => {
     data = result;
-    await Amenity.createAmenity(data).then((_result) => {
+    await Amenity.createAmenity(data).then(async (_result) => {
       const { insertId } = _result;
       if (insertId) {
-        return response(res, 200, true, 'Amenity Created Successfuly.', _result);
+        await Amenity.getAmenityById(insertId).then((__result) => response(res, 200, true, 'Amenity Created Successfuly.', __result[0])).catch((error) => response(res, 200, false, 'Error At Fetching Amenity.', error));
       }
       else {
         return response(res, 200, false, 'Creating Amenity Failed. Please Try Again.');
@@ -46,10 +46,10 @@ const updateAmenity = async (req, res) => {
   var data = {};
   await uploadAmenityIcon(req).then(async (result) => {
     data = result;
-    await Amenity.updateAmenity(id, data).then((_result) => {
-      const { affectedRows } = result;
+    await Amenity.updateAmenity(id, data).then(async (_result) => {
+      const { affectedRows } = _result;
       if (affectedRows > 0) {
-        return response(res, 200, true, 'Amenity Updated Successfuly.', _result);
+        await Amenity.getAmenityById(id).then((__result) => response(res, 200, true, 'Amenity Updated Successfuly.', __result[0])).catch((error) => response(res, 200, false, 'Error At Fetching Amenity.', error));
       }
       else {
         return response(res, 200, false, 'Updating Amenity Failed.');

@@ -28,7 +28,7 @@ const uploadProfileImage = async (request) => {
       })
       .on('file', (name, file) => {
         if (file !== null || file.name !== '') {
-          const fileName = name + '_' + Date.now() + '_' + file.name;
+          const fileName = name + '_' + Date.now() + '.' + file.name.split('.').pop();
           fs.rename(file.path, formParse.uploadDir + fileName, (error) => error);
           data[name] = fileName;
         }
@@ -71,7 +71,7 @@ const uploadHotelImages = async (request) => {
       })
       .on('file', (name, file) => {
         if (file !== null || file.name !== '') {
-          const fileName = name + '_' + Date.now() + '_' + file.name;
+          const fileName = name + '_' + Date.now() + '.' + file.name.split('.').pop();
           fs.rename(file.path, form.uploadDir + fileName, (error) => error);
           data.image.push(fileName);
         }
@@ -112,7 +112,7 @@ const uploadAmenityIcon = async (request) => {
       })
       .on('file', (name, file) => {
         if (file !== null || file.name !== '') {
-          const fileName = name + '_' + Date.now() + '_' + file.name;
+          const fileName = name + '_' + Date.now() + '.' + file.name.split('.').pop();
           fs.rename(file.path, formParse.uploadDir + fileName, (error) => error);
           data[name] = fileName;
         }

@@ -34,6 +34,7 @@ const getUserById = async (req, res) => {
   const { id } = req.params;
   await User.getUserById(id).then((result) => {
     if (result.length > 0) {
+      delete result[0].password;
       return response(res, 200, true, 'Data Found.', result[0]);
     }
     else {

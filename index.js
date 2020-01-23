@@ -8,7 +8,8 @@ const express = require('express'),
   bodyParser = require('body-parser'),
   responseTime = require('response-time'),
   router = require('./Routes'),
-  port = process.env.APP_PORT || 8001;
+  port = process.env.APP_PORT || 8001
+  version = process.env.API_VERSION || 1;
 
 const app = express();
 
@@ -20,7 +21,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(responseTime());
 app.use(compression());
-app.use('/api', router);
+app.use(`/api/v${version}`, router);
 // app.use('/images', express.static(path.join(__dirname, 'public/images')));
 // app.use('/logos', express.static(path.join(__dirname, 'public/logos')));
 

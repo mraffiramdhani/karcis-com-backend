@@ -21,7 +21,14 @@ const randomNumber = (length) => {
 };
 
 const generateOTP = () => {
-  randomNumber(4);
+  let result = '';
+  const characters = '0123456789';
+  const charactersLength = characters.length;
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < 4; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 };
 
 const range = (start, end) => {

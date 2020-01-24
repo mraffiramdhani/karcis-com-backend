@@ -3,7 +3,7 @@ const conn = require('./db');
 const { paramParser } = require('../Utils');
 
 const getRoomsCount = (hotelId, search, sort) => {
-  const sql = 'SELECT COUNT(*) as roomCount FROM hotel_rooms WHERE id = ?';
+  const sql = 'SELECT COUNT(*) as roomCount FROM hotel_rooms WHERE hotel_id = ?';
   const sqlParsed = paramParser(sql, search, sort, null, false);
 
   return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ const getRoomsCount = (hotelId, search, sort) => {
 };
 
 const getRooms = (hotelId, search, sort, limit) => {
-  const sql = 'SELECT * FROM hotel_rooms WHERE id = ?';
+  const sql = 'SELECT * FROM hotel_rooms WHERE hotel_id = ?';
   const sqlParsed = paramParser(sql, search, sort, limit, false);
 
   return new Promise((resolve, reject) => {

@@ -2,7 +2,7 @@
 const {
 	response, redis, urlParser
 } = require('../Utils');
-const { HotelRooms, RoomImages } = require('../Services');
+const { HotelRooms, RoomImages, RoomAmenities, Amenity } = require('../Services');
 
 const getHotelRooms = async (req, res) => {
   const {
@@ -33,9 +33,20 @@ const getHotelRooms = async (req, res) => {
       const rooms = await HotelRooms.getRooms(id, search, sort, limit);
       if (rooms) {
       	for(let i = 0; i < rooms.length; i++){
-          const roomImages = await HotelRooms.getCheapestRooms(hotels[i].id);
-          hotels[i].cost = cheapestRoom[0].cost;
+          const roomImages = await RoomImages.getImages(id, rooms[i].room_type_id);
+          rooms[i].images =  roomImages;
         }
+
+        for(let i = 0; i < rooms.length; i++){
+          rooms[i].amenities = [];
+          await RoomAmenities.getAmenities(id, rooms[i].room_type_id).then(async (_result) => {
+            for(let j = 0; j < _result.length; j++){
+              const roomAmenities = await Amenity.getAmenityById(_result[j].amenities_id);
+              rooms[i].amenities.push(roomAmenities[0]);
+            }
+          }).catch((error) => response(res, 200, false, 'Error At Fetching Room Amenity.', error));
+        }
+
         const result = {
           rooms
         };
@@ -65,6 +76,10 @@ const getHotelRooms = async (req, res) => {
     }
   });
 };
+
+const getHotelRoomById = async (req, res) => {
+  const {}
+}
 
 // const getHotelRoomById = async (req, res) => {
 //   const { id, hotelId } = req.params;

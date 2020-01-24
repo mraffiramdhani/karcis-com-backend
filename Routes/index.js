@@ -5,6 +5,7 @@ const express = require('express'),
     BalanceController,
     HomeController,
     HotelController,
+    HotelRoomController,
     RoomTypeController,
     UserController
   } = require('../Controllers'),
@@ -58,6 +59,9 @@ router
   .post('/room/type', auth, RoomTypeController.createRoomType)
   .patch('/room/type/:id', auth, RoomTypeController.updateRoomType)
   .delete('/room/type/:id', auth, RoomTypeController.deleteRoomType);
+
+router
+  .get('/hotel/:id/room', HotelRoomController.getHotelRooms);
 
 
 module.exports = router;

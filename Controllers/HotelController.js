@@ -2,7 +2,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-else-return */
 const {
-  response, redis, urlParser
+  response, redis, urlParser, uploadHotelImages
 } = require('../Utils');
 const { Hotel, HotelImages, HotelRooms, HotelAmenities, Amenity } = require('../Services');
 
@@ -85,6 +85,9 @@ const getHotelById = async (req, res) => {
             arr.push(hotelAmenity[0]);
           }
         }
+        else {
+          return response(res, 200, false, 'Amenities Data Not Found.');
+        }
       }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Amenity.', error));
       const hotelImages = await HotelImages.getImages(id);
       result[0].amenities = arr;
@@ -98,20 +101,50 @@ const getHotelById = async (req, res) => {
 };
 
 const createHotel = async (req, res) => {
-  const {
-    name, description, address, city_id, latitude, longitude, province_id
-  } = req.body;
-  const data = {
-    name, description, address, city_id, latitude, longitude, province_id
-  };
-  await Hotel.createHotel(data).then((result) => {
-    if (result.insertId > 0) {
-      return response(res, 200, true, 'Hotel Created Successfuly.', result);
-    }
-    else {
-      return response(res, 200, false, 'Creating Hotel Failed. Please Try Again.');
-    }
-  }).catch((error) => response(res, 200, false, 'Error At Creating Hotel.', error));
+  var data = {};
+  await uploadHotelImages(req).then(async (result) => {
+    data = result;
+    await Hotel.createHotel(data).then(async (_result) => {
+      if (_result.insertId > 0) {
+        console.log('create hotel');
+        await HotelImages.createImages(_result.insertId, data).then(async (__result) => {
+          console.log('create images');
+          await HotelAmenities.createAmenities(_result.insertId, data.amenities_id).then(async () => {
+            console.log('create amenities');
+            await Hotel.getHotelById(_result.insertId).then(async (___result) => {
+              console.log('get hotel');
+              if (___result.length > 0) {
+                const arr = [];
+                await HotelAmenities.getAmenities(_result.insertId).then(async (____result) => {
+                  console.log('get amenities');
+                  if (____result.length > 0) {
+                    for(let j = 0 ; j < ____result.length ; j++){
+                      const hotelAmenity = await Amenity.getAmenityById(____result[j].amenities_id);
+                      arr.push(hotelAmenity[0]);
+                    }
+                  }
+                  else {
+                    return response(res, 200, false, 'Amenities Data Not Found.');
+                  }
+                }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Amenity.', error));
+                const hotelImages = await HotelImages.getImages(_result.insertId);
+                ___result[0].amenities = arr;
+                ___result[0].images = hotelImages;
+                console.log(___result);
+                return response(res, 200, true, 'Data Found.', ___result[0]);
+              }
+              else {
+                return response(res, 200, true, 'Data Not Found.');
+              }
+            }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel.', error));
+          }).catch((error) => response(res, 200, false, 'Error At Creating Amenities.', error));
+        }).catch((error) => response(res, 200, false, 'Error At Uploading Hotel Images.', error));
+      }
+      else {
+        return response(res, 200, false, 'Creating Hotel Failed. Please Try Again.');
+      }
+    }).catch((error) => response(res, 200, false, 'Error At Creating Hotel.', error));
+  }).catch((error) => response(res, 200, false, 'Error At Uploading Hotel Images.', error));
 };
 
 const updateHotel = async (req, res) => {

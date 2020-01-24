@@ -14,11 +14,11 @@ const getAmenities = (hotelId) => {
 const createAmenities = (hotelId, data) => {
   var amnData = [];
   for(let i = 0; i < data.length; i++){
-    amnData.push(`(${data[i].id}, ${hotelId})`);
+    amnData.push(`(${data[i]}, ${hotelId})`);
   }
-  const sql = 'INSERT INTO hotel_amenities(amenities_id, hotel_id) VALUES ?';
+  const sql = `INSERT INTO hotel_amenities(amenities_id, hotel_id) VALUES ${amnData.join(',')}`;
   return new Promise((resolve, reject) => {
-    conn.query(sql, [amnData.join(',')], (err, res) => {
+    conn.query(sql, [], (err, res) => {
       if (err) reject(err);
       resolve(res);
     });

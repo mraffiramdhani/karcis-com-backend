@@ -13,13 +13,14 @@ const getImages = (hotelId) => {
 
 const createImages = (hotelId, data) => {
   var imgData = [];
-  for(let i = 0; i < data.length; i++){
-    imgData.push(`(${hotelId}, ${data[i].filename})`);
+  for(let i = 0; i < data.filename.length; i++){
+    imgData.push(`(${hotelId}, '${data.filename[i]}')`);
   }
-  const sql = 'INSERT INTO hotel_images(hotel_id, filename) VALUES ?';
+  const sql = `INSERT INTO hotel_images(hotel_id, filename) VALUES ${imgData.join(',')}`;
   return new Promise((resolve, reject) => {
-    conn.query(sql, [imgData.join(',')], (err, res) => {
+    conn.query(sql, [], (err, res) => {
       if (err) reject(err);
+      console.log(res);
       resolve(res);
     });
   });

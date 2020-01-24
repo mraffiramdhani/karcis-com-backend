@@ -16,9 +16,9 @@ const createAmenities = (hotelId, roomTypeId, data) => {
   for(let i = 0; i < data.length; i++){
     amnData.push(`(${data[i].id}, ${hotelId}, ${roomTypeId}, ${data[i].cost})`);
   }
-  const sql = 'INSERT INTO room_amenities(amenities_id, hotel_id, room_type_id, cost) VALUES ?';
+  const sql = `DELETE FROM room_amenities WHERE hotel_id = ${hotelId} AND room_type_id = ${roomTypeId};INSERT INTO room_amenities(amenities_id, hotel_id, room_type_id, cost) VALUES ${amnData.join(',')}`;
   return new Promise((resolve, reject) => {
-    conn.query(sql, [amnData.join(',')], (err, res) => {
+    conn.query(sql, [], (err, res) => {
       if (err) reject(err);
       resolve(res);
     });

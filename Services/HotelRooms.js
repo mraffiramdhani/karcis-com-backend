@@ -37,7 +37,7 @@ const getCheapestRooms = (hotelId) => {
 };
 
 const getRoom = (roomId, hotelId) => {
-  const sql = 'SELECT * FROM hotel_rooms WHERE id = ? AND hotel_id = ?';
+  const sql = 'SELECT * FROM hotel_rooms WHERE room_type_id = ? AND hotel_id = ?';
   return new Promise((resolve, reject) => {
     conn.query(sql, [roomId, hotelId], (err, res) => {
       if (err) reject(err);
@@ -47,21 +47,10 @@ const getRoom = (roomId, hotelId) => {
 }
 
 const createRoom = (hotelId, data) => {
-  const { id, cost, capacity, description } = data;
-  const sql = 'INSERT INTO hotel_rooms(room_type_id, hotel_id, cost, capacity, description) VALUES(?,?,?,?,?)';
+  const { room_type_id, cost, capacity, description } = data;
+  const sql = 'INSERT INTO hotel_rooms(room_type_id, hotel_id, cost, capacity, description) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE cost = ?, capacity = ?, description = ?';
   return new Promise((resolve, reject) => {
-    conn.query(sql, [id, hotelId, cost, capacity, description], (err, res) => {
-      if (err) reject(err);
-      resolve(res);
-    });
-  });
-};
-
-const updateRoom = (hotelId, data) => {
-  const { id, cost, capacity, description } = data;
-  const sql = 'UPDATE hotel_rooms SET cost = ?, capacity = ?, description = ? WHERE hotel_id = ? AND room_type_id = ?';
-  return new Promise((resolve, reject) => {
-    conn.query(sql, [cost, capacity, description, hotelId, id], (err, res) => {
+    conn.query(sql, [room_type_id, hotelId, cost, capacity, description, cost, capacity, description], (err, res) => {
       if (err) reject(err);
       resolve(res);
     });
@@ -84,6 +73,5 @@ module.exports = {
   getCheapestRooms,
   getRoom,
   createRoom,
-  updateRoom,
   deleteRoom
 };

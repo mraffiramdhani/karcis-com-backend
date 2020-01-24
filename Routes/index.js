@@ -61,7 +61,9 @@ router
   .delete('/room/type/:id', auth, RoomTypeController.deleteRoomType);
 
 router
-  .get('/hotel/:id/room', HotelRoomController.getHotelRooms);
+  .get('/hotel/:id/room', HotelRoomController.getHotelRooms)
+  .get('/hotel/:id/room/:roomId', HotelRoomController.getHotelRoomById)
+  .post('/hotel/:id/room', HotelRoomController.createHotelRoom);
 
 
 module.exports = router;

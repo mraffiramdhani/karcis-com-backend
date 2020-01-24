@@ -92,6 +92,7 @@ const uploadHotelImages = async (request) => {
 const uploadHotelRoomImages = async (request) => {
   const data = {};
   data.image = [];
+  data.amenities_id = [];
   const form = new formidable.IncomingForm();
   form.uploadDir = path.join(__dirname + './../Public/Images/Hotel/');
   form.keepExtensions = true;
@@ -111,7 +112,12 @@ const uploadHotelRoomImages = async (request) => {
     };
     form.parse(request)
       .on('field', (name, field) => {
-        data[name] = field;
+        if(name === 'amenities_id'){
+          data.amenities_id.push(field);
+        }
+        else {
+          data[name] = field;
+        }
       })
       .on('file', (name, file) => {
         if (file !== null || file.name !== '') {
@@ -176,5 +182,6 @@ const uploadAmenityIcon = async (request) => {
 module.exports = {
   uploadProfileImage,
   uploadHotelImages,
+  uploadHotelRoomImages,
   uploadAmenityIcon
 };

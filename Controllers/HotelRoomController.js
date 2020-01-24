@@ -1,6 +1,6 @@
 /* eslint-disable no-else-return */
 const {
-	response, redis, urlParser
+	response, redis, urlParser, uploadHotelRoomImages
 } = require('../Utils');
 const { HotelRooms, RoomImages, RoomAmenities, Amenity } = require('../Services');
 
@@ -78,25 +78,79 @@ const getHotelRooms = async (req, res) => {
 };
 
 const getHotelRoomById = async (req, res) => {
-  const {}
-}
+  const { id, roomId } = req.params;
+  await HotelRooms.getRoom(roomId, id).then(async (result) => {
+    if (result.length > 0) {
+      const roomImages = await RoomImages.getImages(id, result[0].room_type_id);
+      if(roomImages) {
+        result[0].images =  roomImages;
+      }
 
-// const getHotelRoomById = async (req, res) => {
-//   const { id, hotelId } = req.params;
-//   await HotelRooms.getRoom(id, hotelId).then((result) => {
-//     if (result.length > 0) {
-//       return response(res, 200, true, 'Data Found.', result[0]);
-//     }
-//     else {
-//       return response(res, 200, false, 'Data Not Found.');
-//     }
-//   }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Room By ID.', error));
-// };
+      result[0].amenities = [];
+      const roomAmenities = await RoomAmenities.getAmenities(id, result[0].room_type_id);
+      if(roomAmenities) {
+        for(let j = 0; j < roomAmenities.length; j++){
+          const amenitiesData = await Amenity.getAmenityById(roomAmenities[j].amenities_id);
+          result[0].amenities.push(amenitiesData[0]);
+        }
+      }
 
-// const createHotelRoom = async (req, res) => {
-// 	const { id } = req.params;
+      return response(res, 200, true, 'Data Found - Database Query', result[0]);
+    }
+    else {
+      return response(res, 200, true, 'No Room Available.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Rooms.', error));
+};
 
-// };
+const createHotelRoom = async (req, res) => {
+  const { id } = req.params;
+  await uploadHotelRoomImages(req).then(async (result) => {
+    await HotelRooms.createRoom(id, result).then(async (_result) => {
+      if (_result.affectedRows > 0) {
+        const images = [];
+        for(let i = 0; i < result.image.length; i++){
+          images.push({filename: result.image[i]});
+        }
+        await RoomImages.createImages(id, result.room_type_id, images).then(async (__result) => {
+          if(__result.length > 0){
+            const amenities = [];
+            for(let j = 0; j < result.amenities_id.length; j++){
+              amenities.push({id: result.amenities_id[j], cost: 0});
+            }
+            await RoomAmenities.createAmenities(id, result.room_type_id, amenities).then(async (___result) => {
+              if (___result.length > 0){
+                var data = {};
+                const roomAmenities = [];
+                const hotelRoomData = await HotelRooms.getRoom(result.room_type_id, id);
+                const roomImagesData = await RoomImages.getImages(id, result.room_type_id);
+                const roomAmenitiesData = await RoomAmenities.getAmenities(id, result.room_type_id).then(async (amenities_result) => {
+                  for(let k = 0; k < amenities_result.length; k++){
+                    const amnData = await Amenity.getAmenityById(amenities_result[k].amenities_id);
+                    roomAmenities.push(amnData[0]);
+                  }
+                }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Room Amenities.', error));
+                data.hotel = hotelRoomData;                
+                data.hotel[0].images = roomImagesData;
+                data.hotel[0].amenities = roomAmenities;
+                return response(res, 200, true, 'Hotel Room Created Successfuly.', data.hotel[0]);
+              }
+              else {
+                return response(res, 200, false, 'Storing Hotel Room Amenities Failed. Please Try Again.');
+              }
+            }).catch((error) => response(res, 200, false, 'Error At Storing Hotel Room Amenities.', error));
+          }
+          else {
+            return response(res, 200, false, 'Storing Hotel Room Images Failed. Please Try Again.');
+          }
+        }).catch((error) => response(res, 200, false, 'Error At Storing Hotel Room Images.', error));
+      }
+      else {
+        return response(res, 200, false, 'Creating Hotel Room Failed. Please Try Again.');
+      }
+    }).catch((error) => response(res, 200, false, 'Error At Creating Hotel Rooms.', error));
+  }).catch((error) => response(res, 200, false, 'Error At Uploading Hotel Room Images.', error));
+};
 
 // const updateBalance = async (req, res) => {
 //   const { id } = req.auth;
@@ -127,5 +181,7 @@ const getHotelRoomById = async (req, res) => {
 // };
 
 module.exports = {
-  getHotelRooms
+  getHotelRooms,
+  getHotelRoomById,
+  createHotelRoom
 };

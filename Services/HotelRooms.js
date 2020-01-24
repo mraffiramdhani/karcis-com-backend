@@ -1,10 +1,25 @@
 /* eslint-disable camelcase */
 const conn = require('./db');
+const { paramParser } = require('../Utils');
 
-const getRooms = (hotelId) => {
-  const sql = 'SELECT * FROM hotel_rooms WHERE hotel_id = ?';
+const getRoomsCount = (hotelId, search, sort) => {
+  const sql = 'SELECT COUNT(*) as roomCount FROM hotel_rooms WHERE id = ?';
+  const sqlParsed = paramParser(sql, search, sort, null, false);
+
   return new Promise((resolve, reject) => {
-    conn.query(sql, [hotelId], (err, res) => {
+    conn.query(sqlParsed, [hotelId], (err, res) => {
+      if (err) reject(err);
+      resolve(res);
+    });
+  });
+};
+
+const getRooms = (hotelId, search, sort, limit) => {
+  const sql = 'SELECT * FROM hotel_rooms WHERE id = ?';
+  const sqlParsed = paramParser(sql, search, sort, limit, false);
+
+  return new Promise((resolve, reject) => {
+    conn.query(sqlParsed, [hotelId], (err, res) => {
       if (err) reject(err);
       resolve(res);
     });
@@ -51,7 +66,7 @@ const updateRoom = (hotelId, data) => {
       resolve(res);
     });
   });
-}
+};
 
 const deleteRoom = (roomId, hotelId) => {
   const sql = 'DELETE FROM hotel_rooms WHERE id = ? AND hotel_id = ?';
@@ -61,9 +76,10 @@ const deleteRoom = (roomId, hotelId) => {
       resolve(res);
     });
   });
-}
+};
 
 module.exports = {
+  getRoomsCount,
   getRooms,
   getCheapestRooms,
   getRoom,

@@ -4,7 +4,7 @@
 const {
   response, redis, urlParser
 } = require('../Utils');
-const { Hotel, HotelRooms, HotelAmenities, Amenity } = require('../Services');
+const { Hotel, HotelImages, HotelRooms, HotelAmenities, Amenity } = require('../Services');
 
 const getHotels = async (req, res) => {
   const {
@@ -36,6 +36,11 @@ const getHotels = async (req, res) => {
         for(let i = 0; i < hotels.length; i++){
           const cheapestRoom = await HotelRooms.getCheapestRooms(hotels[i].id);
           hotels[i].cost = cheapestRoom[0].cost;
+        }
+
+        for(let i = 0; i < hotels.length; i++){
+          const hotelImages = await HotelImages.getImages(hotels[i].id);
+          hotels[i].images = hotelImages;
         }
 
         const result = {
@@ -81,7 +86,9 @@ const getHotelById = async (req, res) => {
           }
         }
       }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Amenity.', error));
+      const hotelImages = await HotelImages.getImages(id);
       result[0].amenities = arr;
+      result[0].images = hotelImages;
       return response(res, 200, true, 'Data Found.', result[0]);
     }
     else {

@@ -89,6 +89,50 @@ const uploadHotelImages = async (request) => {
   });
 };
 
+const uploadHotelRoomImages = async (request) => {
+  const data = {};
+  data.image = [];
+  const form = new formidable.IncomingForm();
+  form.uploadDir = path.join(__dirname + './../Public/Images/Hotel/');
+  form.keepExtensions = true;
+  form.maxFieldsSize = 2 * 1024 * 1024;
+  form.multiples = true;
+
+  return new Promise((resolve, reject) => {
+    form.onPart = (part) => {
+      if (!part.filename || part.filename.match(/\.(jpg|jpeg|png)$/i)) {
+        // Let formidable handle the non file-pars and valid file types
+        form.handlePart(part);
+      }
+      else {
+        // eslint-disable-next-line no-underscore-dangle
+        form._error('File type is not supported');
+      }
+    };
+    form.parse(request)
+      .on('field', (name, field) => {
+        data[name] = field;
+      })
+      .on('file', (name, file) => {
+        if (file !== null || file.name !== '') {
+          const fileName = name + '_' + Date.now() + '.' + file.name.split('.').pop();
+          fs.rename(file.path, form.uploadDir + fileName, (error) => error);
+          data.image.push(fileName);
+        }
+      })
+      .on('aborted', () => {
+        // eslint-disable-next-line no-underscore-dangle
+        form._error('Request Aborted By User');
+      })
+      .on('error', (err) => {
+        reject(err);
+      })
+      .on('end', () => {
+        resolve(data);
+      });
+  });
+};
+
 const uploadAmenityIcon = async (request) => {
   const data = {};
   const formParse = new formidable.IncomingForm();

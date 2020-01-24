@@ -12,6 +12,7 @@ const express = require('express'),
   router = express.Router();
 const { auth } = require('../Services/middleware');
 
+// HomeController
 router.get('/', HomeController.index);
 
 // Auth Routes
@@ -53,6 +54,7 @@ router
   .patch('/amenity/:id', auth, AmenityController.updateAmenity)
   .delete('/amenity/:id', auth, AmenityController.deleteAmenity);
 
+// RoomTypeController
 router
   .get('/room/type', RoomTypeController.getRoomTypes)
   .get('/room/type/:id', RoomTypeController.getRoomTypeById)
@@ -60,13 +62,12 @@ router
   .patch('/room/type/:id', auth, RoomTypeController.updateRoomType)
   .delete('/room/type/:id', auth, RoomTypeController.deleteRoomType);
 
+// HotelRoomController
 router
   .get('/hotel/:id/room', HotelRoomController.getHotelRooms)
   .get('/hotel/:id/room/:roomId', HotelRoomController.getHotelRoomById)
-  .post('/hotel/:id/room', HotelRoomController.createHotelRoom)
-  .patch('/hotel/:id/room/:roomId', HotelRoomController.updateHotelRoom)
-  .delete('/hotel/:id/room/:roomId', HotelRoomController.deleteHotelRoom);
-
-
+  .post('/hotel/:id/room', auth, HotelRoomController.createHotelRoom)
+  .patch('/hotel/:id/room/:roomId', auth, HotelRoomController.updateHotelRoom)
+  .delete('/hotel/:id/room/:roomId', auth, HotelRoomController.deleteHotelRoom);
 
 module.exports = router;

@@ -63,7 +63,10 @@ router
 router
   .get('/hotel/:id/room', HotelRoomController.getHotelRooms)
   .get('/hotel/:id/room/:roomId', HotelRoomController.getHotelRoomById)
-  .post('/hotel/:id/room', HotelRoomController.createHotelRoom);
+  .post('/hotel/:id/room', HotelRoomController.createHotelRoom)
+  .patch('/hotel/:id/room/:roomId', HotelRoomController.updateHotelRoom)
+  .delete('/hotel/:id/room/:roomId', HotelRoomController.deleteHotelRoom);
+
 
 
 module.exports = router;

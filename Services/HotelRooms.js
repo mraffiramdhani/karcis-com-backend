@@ -58,7 +58,7 @@ const createRoom = (hotelId, data) => {
 };
 
 const deleteRoom = (roomId, hotelId) => {
-  const sql = 'DELETE FROM hotel_rooms WHERE id = ? AND hotel_id = ?';
+  const sql = 'DELETE FROM hotel_rooms WHERE room_type_id = ? AND hotel_id = ?';
   return new Promise((resolve, reject) => {
     conn.query(sql, [roomId, hotelId], (err, res) => {
       if (err) reject(err);

@@ -152,36 +152,72 @@ const createHotelRoom = async (req, res) => {
   }).catch((error) => response(res, 200, false, 'Error At Uploading Hotel Room Images.', error));
 };
 
-// const updateBalance = async (req, res) => {
-//   const { id } = req.auth;
-//   const { value } = req.body;
-//   await Balance.updateBalance(id, value).then(async (result) => {
-//     if (result.affectedRows > 0) {
-//       await Balance.getBalance(id).then(async (_result) => {
-//         if (_result.length > 0) {
-//           const data = { balance: _result[0].balance, top_up: value}
-//           await BalanceHistories.createBalanceHistory(id, _result[0].id, data).then((__result) => {
-//             if (__result.insertId > 0) {
-//               return response(res, 200, true, 'Top Up Balance Success.', _result[0]);
-//             }
-//             else {
-//               return response(res, 200, false, 'Balance Top Up Failed. Please Try Again.');
-//             }
-//           }).catch((error) => response(res, 200, false, 'Error At Storing Top Up History.', error));
-//         }
-//         else {
-//           return response(res, 200, false, 'Fetching User Balance Failed. Please Try Again.');
-//         }
-//       }).catch((error) => response(res, 200, false, 'Error At Fetching User Balance.', error));
-//     }
-//     else {
-//       return response(res, 200, false, 'Updating Balance Failed. Please Try Again.');
-//     }
-//   }).catch((error) => response(res, 200, false, 'Error At Updating User Balance.', error));
-// };
+const updateHotelRoom = async (req, res) => {
+  const { id, roomId } = req.params;
+  await uploadHotelRoomImages(req).then(async (result) => {
+    result.room_type_id = roomId;
+    await HotelRooms.createRoom(id, result).then(async (_result) => {
+      if (_result.affectedRows > 0) {
+        const images = [];
+        for(let i = 0; i < result.image.length; i++){
+          images.push({filename: result.image[i]});
+        }
+        await RoomImages.createImages(id, roomId, images).then(async (__result) => {
+          if(__result.length > 0){
+            const amenities = [];
+            for(let j = 0; j < result.amenities_id.length; j++){
+              amenities.push({id: result.amenities_id[j], cost: 0});
+            }
+            await RoomAmenities.createAmenities(id, roomId, amenities).then(async (___result) => {
+              if (___result.length > 0){
+                var data = {};
+                const roomAmenities = [];
+                const hotelRoomData = await HotelRooms.getRoom(roomId, id);
+                const roomImagesData = await RoomImages.getImages(id, roomId);
+                const roomAmenitiesData = await RoomAmenities.getAmenities(id, roomId).then(async (amenities_result) => {
+                  for(let k = 0; k < amenities_result.length; k++){
+                    const amnData = await Amenity.getAmenityById(amenities_result[k].amenities_id);
+                    roomAmenities.push(amnData[0]);
+                  }
+                }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Room Amenities.', error));
+                data.hotel = hotelRoomData;
+                data.hotel[0].images = roomImagesData;
+                data.hotel[0].amenities = roomAmenities;
+                return response(res, 200, true, 'Hotel Room Updated Successfuly.', data.hotel[0]);
+              }
+              else {
+                return response(res, 200, false, 'Storing Hotel Room Amenities Failed. Please Try Again.');
+              }
+            }).catch((error) => response(res, 200, false, 'Error At Storing Hotel Room Amenities.', error));
+          }
+          else {
+            return response(res, 200, false, 'Storing Hotel Room Images Failed. Please Try Again.');
+          }
+        }).catch((error) => response(res, 200, false, 'Error At Storing Hotel Room Images.', error));
+      }
+      else {
+        return response(res, 200, false, 'Updating Hotel Room Failed. Please Try Again.');
+      }
+    }).catch((error) => response(res, 200, false, 'Error At Updating Hotel Rooms.', error));
+  }).catch((error) => response(res, 200, false, 'Error At Uploading Hotel Room Images.', error));
+};
+
+const deleteHotelRoom = async (req, res) => {
+  const { id, roomId } = req.params;
+  await HotelRooms.deleteRoom(roomId, id).then((result) => {
+    if (result.affectedRows > 0){
+      return response(res, 200, true, 'Hotel Room Deleted Successfuly', result);
+    }
+    else {
+      return response(res, 200, false, 'Deleting Hotel Room Failed. Please Try Again.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Deleting Hotel Room.', error));
+}
 
 module.exports = {
   getHotelRooms,
   getHotelRoomById,
-  createHotelRoom
+  createHotelRoom,
+  updateHotelRoom,
+  deleteHotelRoom
 };

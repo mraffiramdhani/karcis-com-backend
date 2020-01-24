@@ -11,6 +11,16 @@ const getRoomTypes = () => {
   });
 };
 
+const getRoomType = (roomTypeId) => {
+  const sql = 'SELECT * FROM room_types WHERE id = ?';
+  return new Promise((resolve, reject) => {
+    conn.query(sql, [roomTypeId], (err, res) => {
+      if(err) reject(err);
+      resolve(res);
+    });
+  });
+};
+
 const createRoomType = (data) => {
   const { name, description } = data;
   const sql = 'INSERT INTO room_types(name, description) VALUES(?,?)';
@@ -45,6 +55,7 @@ const deleteRoomType = (roomTypeId) => {
 
 module.exports = {
   getRoomTypes,
+  getRoomType,
   createRoomType,
   updateRoomType,
   deleteRoomType

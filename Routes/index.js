@@ -5,6 +5,7 @@ const express = require('express'),
     BalanceController,
     HomeController,
     HotelController,
+    RoomTypeController,
     UserController
   } = require('../Controllers'),
   router = express.Router();
@@ -50,6 +51,13 @@ router
   .post('/amenity', auth, AmenityController.createAmenity)
   .patch('/amenity/:id', auth, AmenityController.updateAmenity)
   .delete('/amenity/:id', auth, AmenityController.deleteAmenity);
+
+router
+  .get('/room/type', RoomTypeController.getRoomTypes)
+  .get('/room/type/:id', RoomTypeController.getRoomTypeById)
+  .post('/room/type', auth, RoomTypeController.createRoomType)
+  .patch('/room/type/:id', auth, RoomTypeController.updateRoomType)
+  .delete('/room/type/:id', auth, RoomTypeController.deleteRoomType);
 
 
 module.exports = router;

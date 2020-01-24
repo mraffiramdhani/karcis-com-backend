@@ -7,6 +7,7 @@ const { hashString, compareHashedString } = require('./bcrypt');
 const { signToken, verifyToken } = require('./token');
 const { randomString, randomNumber, range, generateOTP } = require('./generator');
 const { uploadProfileImage, uploadHotelImages, uploadHotelRoomImages, uploadAmenityIcon } = require('./fileSystem');
+const { dateRange } = require('./date');
 
 module.exports = {
   response,
@@ -25,5 +26,6 @@ module.exports = {
   uploadProfileImage,
   uploadHotelImages,
   uploadHotelRoomImages,
-  uploadAmenityIcon
+  uploadAmenityIcon,
+  dateRange
 };

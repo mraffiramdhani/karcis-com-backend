@@ -121,7 +121,7 @@ const cancelOrder = async (req, res) => {
 		      await Balance.getBalance(id).then(async (_result) => {
 		        if (_result.length > 0) {
 		          const data = { balance: _result[0].balance, top_up: orderStatus[0].subtotal}
-		          await BalanceHistories.createBalanceHistory(id, _result[0].id, data).then((__result) => {
+		          await BalanceHistories.createBalanceHistory(id, _result[0].id, data).then(async (__result) => {
 		            if (__result.insertId > 0) {
 		              await HotelOrder.cancelOrder(orderId, id).then(async (___result) => {
 						        if (___result.affectedRows > 0) {

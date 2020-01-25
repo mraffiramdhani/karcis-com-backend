@@ -15,7 +15,7 @@ exports.seed = (knex) => knex('room_ratings').del()
     const records = [];
     const hotel = range(1 ,10);
     const room = range(1, 5);
-    const user = range(1, 10);
+    const user = range(2, 11);
     // Inserts seed entries
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < hotel.length; i++) {

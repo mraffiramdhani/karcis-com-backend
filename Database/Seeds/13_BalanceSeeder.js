@@ -11,7 +11,7 @@ exports.seed = (knex) => knex('balances').del()
   .then(() => {
     // Inserts seed entries
     const records = [];
-    const user = range(1 ,10);
+    const user = range(2 ,11);
     // Inserts seed entries
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < user.length; i++) {

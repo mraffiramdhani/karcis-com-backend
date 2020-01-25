@@ -25,7 +25,7 @@ const register = async (req, res) => {
         await BalanceHistories.createBalanceHistory(id, balance.insertId, { balance: 1000 });
       }).catch((error) => response(res, 200, false, 'Error At Storing Initial Balance.', error));
       const token = signToken({
-        id, first_name, last_name, email
+        id, first_name, last_name, email, role_id: 2
       });
       await Token.putToken({ token }).then(() => response(res, 200, true, 'Register Success.', {
         token, first_name, last_name, email
@@ -47,9 +47,9 @@ const login = async (req, res) => {
       if (result.length > 0) {
         if (compareHashedString(password, result[0].password)) {
           // eslint-disable-next-line camelcase
-          const { id, first_name, last_name } = result[0];
+          const { id, first_name, last_name, role_id } = result[0];
           const token = signToken({
-            id, first_name, last_name, email
+            id, first_name, last_name, email, role_id
           });
           await Token.putToken(token).then(() => response(res, 200, true, 'Login Success.', {
             token, first_name, last_name, email

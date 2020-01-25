@@ -9,14 +9,25 @@ const createRecord = (knex, id) => knex('users').insert({
   email: faker.internet.email(),
   password: hashString('password'),
   phone: '+62987676522',
-  image: 'default.png'
+  image: 'default.png',
+  role_id: 2
 });
 
 exports.seed = (knex) => knex('users').del()
   .then(() => {
     // Inserts seed entries
     const records = [];
-    const user = range(1 ,10);
+    records.push(knex('users').insert({
+      id: 1,
+      first_name: 'admin',
+      last_name: '',
+      email: 'admin@karcis.com',
+      password: hashString('password'),
+      phone: '+62987676522',
+      image: 'default.png',
+      role_id: 1
+    }));
+    const user = range(2, 11);
     // Inserts seed entries
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < user.length; i++) {

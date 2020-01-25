@@ -7,11 +7,14 @@ const express = require('express'),
   compression = require('compression'),
   bodyParser = require('body-parser'),
   responseTime = require('response-time'),
+  oneSignal = require('onesignal-node'),
   router = require('./Routes'),
-  port = process.env.APP_PORT || 8001
+  port = process.env.APP_PORT || 8001,
   version = process.env.API_VERSION || 1;
 
 const app = express();
+// eslint-disable-next-line max-len
+global.pushClient = new oneSignal.Client(process.env.ONESIGNAL_APP_ID, process.env.ONESIGNAL_API_KEY);
 
 app.use(bodyParser.urlencoded({
   extended: true

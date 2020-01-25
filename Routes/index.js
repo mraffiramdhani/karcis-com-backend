@@ -11,7 +11,7 @@ const express = require('express'),
     UserController
   } = require('../Controllers'),
   router = express.Router();
-const { auth } = require('../Services/middleware');
+const { auth, hasRole } = require('../Services/middleware');
 
 // HomeController
 router.get('/', HomeController.index);
@@ -29,56 +29,56 @@ router
 router
   .get('/user', UserController.getUsers)
   .get('/user/:id', UserController.getUserById)
-  .post('/user', auth, UserController.createUser)
-  .patch('/user/:id', auth, UserController.updateUser)
-  .delete('/user/:id', auth, UserController.deleteUser);
+  .post('/user', auth, hasRole('administrator'), UserController.createUser)
+  .patch('/user/:id', auth, hasRole(['administrator', 'customer']), UserController.updateUser)
+  .delete('/user/:id', auth, hasRole('administrator'), UserController.deleteUser);
 
 // Hotel Routes
 router
   .get('/hotel', HotelController.getHotels)
   .get('/hotel/:id', HotelController.getHotelById)
-  .post('/hotel', auth, HotelController.createHotel)
-  .patch('/hotel/:id', auth, HotelController.updateHotel)
-  .delete('/hotel/:id', auth, HotelController.deleteHotel);
+  .post('/hotel', auth, hasRole('administrator'), HotelController.createHotel)
+  .patch('/hotel/:id', auth, hasRole('administrator'), HotelController.updateHotel)
+  .delete('/hotel/:id', auth, hasRole('administrator'), HotelController.deleteHotel);
 
 // Balance Routes
 router
   .get('/balance', auth, BalanceController.getBalanceByUser)
   .get('/balance/history', auth, BalanceController.getBalanceHistories)
-  .patch('/top-up', auth, BalanceController.updateBalance);
+  .patch('/top-up', auth, hasRole('customer'), BalanceController.updateBalance);
 
 // AmenityController
 router
   .get('/amenity', AmenityController.getAmenities)
   .get('/amenity/:id', AmenityController.getAmenity)
-  .post('/amenity', auth, AmenityController.createAmenity)
-  .patch('/amenity/:id', auth, AmenityController.updateAmenity)
-  .delete('/amenity/:id', auth, AmenityController.deleteAmenity);
+  .post('/amenity', auth, hasRole('administrator'), AmenityController.createAmenity)
+  .patch('/amenity/:id', auth, hasRole('administrator'), AmenityController.updateAmenity)
+  .delete('/amenity/:id', auth, hasRole('administrator'), AmenityController.deleteAmenity);
 
 // RoomTypeController
 router
   .get('/room/type', RoomTypeController.getRoomTypes)
   .get('/room/type/:id', RoomTypeController.getRoomTypeById)
-  .post('/room/type', auth, RoomTypeController.createRoomType)
-  .patch('/room/type/:id', auth, RoomTypeController.updateRoomType)
-  .delete('/room/type/:id', auth, RoomTypeController.deleteRoomType);
+  .post('/room/type', auth, hasRole('administrator'), RoomTypeController.createRoomType)
+  .patch('/room/type/:id', auth, hasRole('administrator'), RoomTypeController.updateRoomType)
+  .delete('/room/type/:id', auth, hasRole('administrator'), RoomTypeController.deleteRoomType);
 
 // HotelRoomController
 router
   .get('/hotel/:id/room', HotelRoomController.getHotelRooms)
   .get('/hotel/:id/room/:roomId', HotelRoomController.getHotelRoomById)
-  .post('/hotel/:id/room', auth, HotelRoomController.createHotelRoom)
-  .patch('/hotel/:id/room/:roomId', auth, HotelRoomController.updateHotelRoom)
-  .delete('/hotel/:id/room/:roomId', auth, HotelRoomController.deleteHotelRoom);
+  .post('/hotel/:id/room', auth, hasRole('administrator'), HotelRoomController.createHotelRoom)
+  .patch('/hotel/:id/room/:roomId', auth, hasRole('administrator'), HotelRoomController.updateHotelRoom)
+  .delete('/hotel/:id/room/:roomId', auth, hasRole('administrator'), HotelRoomController.deleteHotelRoom);
 
 // HotelOrderController
 router
-  .get('/order/hotel', auth, HotelOrderController.getOrders)
-  .get('/order/hotel/history', auth, HotelOrderController.getOrderHistories)
-  .get('/order/hotel/:orderId', auth, HotelOrderController.getOrder)
-  .post('/order/hotel/', auth, HotelOrderController.createOrder)
-  .patch('/order/hotel/:orderId/cancel', auth, HotelOrderController.cancelOrder)
-  .patch('/order/hotel/:orderId/complete', auth, HotelOrderController.completeOrder)
-  .delete('/order/hotel/:orderId', auth, HotelOrderController.deleteOrder);
+  .get('/order/hotel', auth, hasRole('customer'), HotelOrderController.getOrders)
+  .get('/order/hotel/history', auth, hasRole('customer'), HotelOrderController.getOrderHistories)
+  .get('/order/hotel/:orderId', auth, hasRole('customer'), HotelOrderController.getOrder)
+  .post('/order/hotel/', auth, hasRole('customer'), HotelOrderController.createOrder)
+  .patch('/order/hotel/:orderId/cancel', auth, hasRole('customer'), HotelOrderController.cancelOrder)
+  .patch('/order/hotel/:orderId/complete', auth, hasRole('customer'), HotelOrderController.completeOrder)
+  .delete('/order/hotel/:orderId', auth, hasRole('customer'), HotelOrderController.deleteOrder);
 
 module.exports = router;

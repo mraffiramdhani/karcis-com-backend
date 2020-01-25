@@ -94,7 +94,7 @@ const uploadHotelRoomImages = async (request) => {
   data.image = [];
   data.amenities_id = [];
   const form = new formidable.IncomingForm();
-  form.uploadDir = path.join(__dirname + './../Public/Images/Hotel/');
+  form.uploadDir = path.join(__dirname + './../Public/Images/Room/');
   form.keepExtensions = true;
   form.maxFieldsSize = 2 * 1024 * 1024;
   form.multiples = true;

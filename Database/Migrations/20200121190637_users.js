@@ -9,10 +9,12 @@ exports.up = (knex) => {
     table.string('phone');
     table.string('title').nullable();
     table.string('image').nullable();
+    table.integer('role_id').unsigned();
     table.dateTime('created_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP'));
     table.dateTime('updated_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
     table.unique('email');
+    table.foreign('role_id').references('roles.id').onDelete('cascade').onUpdate('cascade');
   });
 };
 

@@ -1,5 +1,5 @@
 
-exports.up = (knex) => knex.schema.createTable('orders', (table) => {
+exports.up = (knex) => knex.schema.createTable('hotel_orders', (table) => {
   table.increments('id');
   table.integer('user_id').unsigned();
   table.integer('room_type_id').unsigned();
@@ -11,7 +11,9 @@ exports.up = (knex) => knex.schema.createTable('orders', (table) => {
   table.dateTime('check_in');
   table.dateTime('check_out');
   table.integer('duration').defaultTo(1);
+  table.text('message').defaultTo('');
   table.boolean('is_complete').defaultTo(0);
+  table.boolean('is_canceled').defaultTo(0);
   table.dateTime('created_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP'));
   table.dateTime('updated_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
@@ -20,4 +22,4 @@ exports.up = (knex) => knex.schema.createTable('orders', (table) => {
   table.foreign('user_id').references('users.id').onDelete('cascade').onUpdate('cascade');
 });
 
-exports.down = (knex) => knex.schema.dropTable('orders');
+exports.down = (knex) => knex.schema.dropTable('hotel_orders');

@@ -6,6 +6,7 @@ const Hotel = require('./Hotel');
 const HotelAmenities = require('./HotelAmenities');
 const HotelImages = require('./HotelImages');
 const HotelRooms = require('./HotelRooms');
+const HotelOrder = require('./HotelOrder');
 const OTP = require('./OTP');
 const Province = require('./Province');
 const RoomAmenities = require('./RoomAmenities');
@@ -24,6 +25,7 @@ module.exports = {
   Hotel,
   HotelAmenities,
   HotelImages,
+  HotelOrder,
   HotelRooms,
   OTP,
   Province,

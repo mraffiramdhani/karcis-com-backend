@@ -5,6 +5,7 @@ const express = require('express'),
     BalanceController,
     HomeController,
     HotelController,
+    HotelOrderController,
     HotelRoomController,
     RoomTypeController,
     UserController
@@ -69,5 +70,15 @@ router
   .post('/hotel/:id/room', auth, HotelRoomController.createHotelRoom)
   .patch('/hotel/:id/room/:roomId', auth, HotelRoomController.updateHotelRoom)
   .delete('/hotel/:id/room/:roomId', auth, HotelRoomController.deleteHotelRoom);
+
+// HotelOrderController
+router
+  .get('/order/hotel', auth, HotelOrderController.getOrders)
+  .get('/order/hotel/history', auth, HotelOrderController.getOrderHistories)
+  .get('/order/hotel/:orderId', auth, HotelOrderController.getOrder)
+  .post('/order/hotel/', auth, HotelOrderController.createOrder)
+  .patch('/order/hotel/:orderId/cancel', auth, HotelOrderController.cancelOrder)
+  .patch('/order/hotel/:orderId/complete', auth, HotelOrderController.completeOrder)
+  .delete('/order/hotel/:orderId', auth, HotelOrderController.deleteOrder);
 
 module.exports = router;

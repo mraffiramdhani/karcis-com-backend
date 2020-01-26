@@ -1,10 +1,13 @@
 /* eslint-disable camelcase */
 const conn = require('./db');
+const { paramParser } = require('../Utils');
 
-const getCities = () => {
+const getCities = (search) => {
   const sql = 'SELECT * FROM cities';
+  const sqlParsed = paramParser(sql, search, null, null, true);
+
   return new Promise((resolve, reject) => {
-    conn.query(sql, [], (err, res) => {
+    conn.query(sqlParsed, [], (err, res) => {
       if (err) reject(err);
       resolve(res);
     });

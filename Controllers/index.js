@@ -1,6 +1,7 @@
 const AmenityController = require('./AmenityController');
 const AuthController = require('./AuthController');
 const BalanceController = require('./BalanceController');
+const CityController = require('./CityController.');
 const HomeController = require('./HomeController');
 const HotelController = require('./HotelController');
 const HotelOrderController = require('./HotelOrderController');
@@ -12,6 +13,7 @@ module.exports = {
   AmenityController,
   AuthController,
   BalanceController,
+  CityController,
   HomeController,
   HotelController,
   HotelOrderController,

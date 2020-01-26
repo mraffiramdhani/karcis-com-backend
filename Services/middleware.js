@@ -15,7 +15,6 @@ const auth = async (req, res, next) => {
       else {
         try {
           req.auth = verifyToken(jwtToken);
-          console.log(req.auth);
           next();
         }
         catch (error) {

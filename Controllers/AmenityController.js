@@ -29,6 +29,7 @@ const createAmenity = async (req, res) => {
   var data = {};
   await uploadAmenityIcon(req).then(async (result) => {
     data = result;
+    // eslint-disable-next-line consistent-return
     await Amenity.createAmenity(data).then(async (_result) => {
       const { insertId } = _result;
       if (insertId) {
@@ -46,6 +47,7 @@ const updateAmenity = async (req, res) => {
   var data = {};
   await uploadAmenityIcon(req).then(async (result) => {
     data = result;
+    // eslint-disable-next-line consistent-return
     await Amenity.updateAmenity(id, data).then(async (_result) => {
       const { affectedRows } = _result;
       if (affectedRows > 0) {

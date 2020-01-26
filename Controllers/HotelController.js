@@ -1,10 +1,15 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-param-reassign */
 /* eslint-disable camelcase */
 /* eslint-disable max-len */
 /* eslint-disable no-else-return */
 const {
   response, redis, urlParser, uploadHotelImages
 } = require('../Utils');
-const { Hotel, HotelImages, HotelRooms, HotelAmenities, Amenity } = require('../Services');
+const {
+  Hotel, HotelImages, HotelRooms, HotelAmenities, Amenity
+} = require('../Services');
 
 const getHotels = async (req, res) => {
   const {
@@ -33,12 +38,14 @@ const getHotels = async (req, res) => {
     else {
       const hotels = await Hotel.getHotels(search, sort, limit);
       if (hotels) {
-        for(let i = 0; i < hotels.length; i++){
+        for (let i = 0; i < hotels.length; i++) {
+          // eslint-disable-next-line no-await-in-loop
           const cheapestRoom = await HotelRooms.getCheapestRooms(hotels[i].id);
           hotels[i].cost = cheapestRoom[0].cost;
         }
 
-        for(let i = 0; i < hotels.length; i++){
+        for (let i = 0; i < hotels.length; i++) {
+          // eslint-disable-next-line no-await-in-loop
           const hotelImages = await HotelImages.getImages(hotels[i].id);
           hotels[i].images = hotelImages;
         }
@@ -80,7 +87,7 @@ const getHotelById = async (req, res) => {
       const arr = [];
       await HotelAmenities.getAmenities(id).then(async (_result) => {
         if (_result.length > 0) {
-          for(let i = 0 ; i < _result.length ; i++){
+          for (let i = 0; i < _result.length; i++) {
             const hotelAmenity = await Amenity.getAmenityById(_result[i].amenities_id);
             arr.push(hotelAmenity[0]);
           }
@@ -106,19 +113,16 @@ const createHotel = async (req, res) => {
     data = result;
     await Hotel.createHotel(data).then(async (_result) => {
       if (_result.insertId > 0) {
-        console.log('create hotel');
         await HotelImages.createImages(_result.insertId, data).then(async (__result) => {
-          console.log('create images');
           await HotelAmenities.createAmenities(_result.insertId, data.amenities_id).then(async () => {
-            console.log('create amenities');
             await Hotel.getHotelById(_result.insertId).then(async (___result) => {
-              console.log('get hotel');
               if (___result.length > 0) {
                 const arr = [];
                 await HotelAmenities.getAmenities(_result.insertId).then(async (____result) => {
-                  console.log('get amenities');
                   if (____result.length > 0) {
-                    for(let j = 0 ; j < ____result.length ; j++){
+                    // eslint-disable-next-line no-plusplus
+                    for (let j = 0; j < ____result.length; j++) {
+                      // eslint-disable-next-line no-await-in-loop
                       const hotelAmenity = await Amenity.getAmenityById(____result[j].amenities_id);
                       arr.push(hotelAmenity[0]);
                     }
@@ -130,7 +134,6 @@ const createHotel = async (req, res) => {
                 const hotelImages = await HotelImages.getImages(_result.insertId);
                 ___result[0].amenities = arr;
                 ___result[0].images = hotelImages;
-                console.log(___result);
                 return response(res, 200, true, 'Data Found.', ___result[0]);
               }
               else {
@@ -149,20 +152,48 @@ const createHotel = async (req, res) => {
 
 const updateHotel = async (req, res) => {
   const { id } = req.params;
-  const {
-    name, description, address, city_id, latitude, longitude, province_id
-  } = req.body;
-  const data = {
-    name, description, address, city_id, latitude, longitude, province_id
-  };
-  await Hotel.updateHotel(id, data).then(async (result) => {
-    if (result.affectedRows > 0) {
-      await Hotel.getHotelById(id).then((_result) => response(res, 200, true, 'Hotel Updated Successfuly.', _result)).catch((error) => response(res, 200, false, 'Error At Fetching Hotel.', error));
-    }
-    else {
-      return response(res, 200, false, 'Updating Hotel Failed. Please Try Again');
-    }
-  }).catch((error) => response(res, 200, false, 'Error At Updating Hotel.', error));
+  var data = {};
+  await uploadHotelImages(req).then(async (result) => {
+    data = result;
+    // eslint-disable-next-line consistent-return
+    const image = await HotelImages.deleteImage(id).then(async (_result) => {
+      console.log('layer 1', _result);
+      if (_result.affectedRows > 0) {
+        // eslint-disable-next-line consistent-return
+        await HotelImages.createImages(id, data).then(async (__result) => {
+          console.log('layer 2', __result);
+          if (__result.affectedRows > 0) {
+            delete data.filename;
+            console.log('final data', data);
+            await HotelAmenities.deleteAmenity(id).then(async () => {
+              await HotelAmenities.createAmenities(id, data.amenities_id).then(async () => {
+                delete data.amenities_id;
+                await HotelAmenities.getAmenities(id).then(async (____result) => {
+                  console.log('asd', ____result);
+                  await Hotel.updateHotel(id, data).then(async (_____result) => {
+                    if (_____result.affectedRows > 0) {
+                      await Hotel.getHotelById(id).then((______result) => {
+                        return response(res, 200, true, 'Hotel Updated Successfuly.', ______result);
+                      }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel.', error));
+                    }
+                    else {
+                      return response(res, 200, false, 'Updating Hotel Failed. Please Try Again');
+                    }
+                  }).catch((error) => response(res, 200, false, 'Error At Updating Hotel.', error));
+                }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Amenities.', error));
+              }).catch((error) => response(res, 200, false, 'Error At Creating New Hotel Amenities', error));
+            }).catch((error) => response(res, 200, false, 'Error At Deleting Hotel Current Amenities.', error));
+          }
+          else {
+            return response(res, 200, false, 'Creating Hotel Images Failed.');
+          }
+        }).catch((error) => response(res, 200, false, 'Error At Creating Hotel Image.', error));
+      }
+      else {
+        return response(res, 200, false, 'Deleting Hotel Current Images Failed.');
+      }
+    }).catch((error) => response(res, 200, false, 'Error At Deleting Hotel Current Images.', error));
+  }).catch((error) => response(res, 200, false, 'Error At Uploading Hotel Images.', error));
 };
 
 const deleteHotel = async (req, res) => {

@@ -1,9 +1,9 @@
 const regParam = {
-  "maxPrice": `cost <= value`,
-  "minPrice": `cost >= value`,
-  "city_id": `city_id = value`,
-  "province_id": `province_id = value`
-}
+  maxPrice: 'cost <= value',
+  minPrice: 'cost >= value',
+  city_id: 'city_id = value',
+  province_id: 'province_id = value'
+};
 
 const paramParser = (sql, search = null, sort = null, limit = null, where = false) => {
   if (search !== null) {

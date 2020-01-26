@@ -3,6 +3,7 @@ const express = require('express'),
     AmenityController,
     AuthController,
     BalanceController,
+    CityController,
     HomeController,
     HotelController,
     HotelOrderController,
@@ -15,6 +16,7 @@ const { auth, hasRole } = require('../Services/middleware');
 
 // HomeController
 router.get('/', HomeController.index);
+router.get('/city', CityController.getCity);
 
 // Auth Routes
 router

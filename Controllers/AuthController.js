@@ -30,7 +30,14 @@ const register = async (req, res) => {
       await Token.putToken({ token }).then(() => response(res, 200, true, 'Register Success.', {
         token, first_name, last_name, email
       })).catch((error) => response(res, 200, false, 'Error At Storing Token', error));
-    }).catch((error) => response(res, 200, false, 'Error At Registering User.', error));
+    }).catch((error) => {
+      if(error.errno === 1062) {
+        return response(res, 200, false, 'Email has been used before. Please use different email or try logging in.')
+      }
+      else {
+        return response(res, 200, false, 'Error At Registering User.', error);
+      }
+    });
   }
 };
 
@@ -82,7 +89,7 @@ const forgotPassword = async (req, res) => {
           subject: 'Reset Password Request Email.',
           html: forgot_password(otpCode)
         };
-        await sendEmail(payload).then((_result) => response(res, 200, true, 'Forgot Password Request Success.', _result)).catch((error) => response(res, 200, false, 'Error At Sending Forgot Password Email.', error));
+        await sendEmail(payload).then((_result) => response(res, 200, true, 'Forgot Password Request Success.')).catch((error) => response(res, 200, false, 'Error At Sending Forgot Password Email.', error));
       }).catch((error) => response(res, 200, false, 'Error At Storing OTP Codes', error));
     }
     else {
@@ -109,7 +116,7 @@ const resetPassword = async (req, res) => {
   await User.getUserByEmail(email).then(async (result) => {
     if (result.length > 0) {
       const { id } = result[0];
-      await User.updateUser(id, { password }).then((_result) => response(res, 200, true, 'Change Password Success.', _result)).catch((error) => response(res, 200, false, 'Change Password Failed.', error));
+      await User.updateUser(id, { password }).then((_result) => response(res, 200, true, 'Change Password Success.')).catch((error) => response(res, 200, false, 'Change Password Failed.', error));
     }
     else {
       return response(res, 200, false, 'Email Not Found.');

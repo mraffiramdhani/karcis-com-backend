@@ -83,7 +83,7 @@ const forgotPassword = async (req, res) => {
   await User.getUserByEmail(email).then(async (result) => {
     if (result.length > 0) {
       const otpCode = generateOTP();
-      await OTP.putCode(otpCode, 10).then(async () => {
+      await OTP.putCode(otpCode, 1).then(async () => {
         const payload = {
           to: email,
           subject: 'Reset Password Request Email.',
@@ -100,12 +100,19 @@ const forgotPassword = async (req, res) => {
 
 const checkOTP = async (req, res) => {
   const { code } = req.body;
-  await OTP.checkCode(code).then((result) => {
+  await OTP.checkCode(code).then(async (result) => {
     if (result.length > 0) {
-      return response(res, 200, true, 'OTP Check Success.');
+      await OTP.revokeCode(code).then((_result) => {
+        if (_result.affectedRows > 0) {
+          return response(res, 200, true, 'OTP Check Success. Your Code is Valid.');
+        }
+        else {
+          return response(res, 200, false, 'Updating OTP Code Status Failed. Please Try Again');
+        }
+      }).catch((error) => response(res, 200, false, 'Error At Updating OTP Code Status', error));
     }
     else {
-      return response(res, 200, false, 'OTP Code Expired. Please Try Again.');
+      return response(res, 200, false, 'OTP Code Invalid. Please Try Again.');
     }
   }).catch((error) => response(res, 200, false, 'Error At OTP Checking', error));
 };

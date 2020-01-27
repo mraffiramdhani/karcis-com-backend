@@ -9,12 +9,14 @@ const paramParser = (sql, search = null, sort = null, limit = null, where = fals
   if (search !== null) {
     const arr = [];
     Object.keys(search).map((key) => {
-      let str = regParam[key]
-      ? regParam[key].replace('value', search[key])
-      : `${key} LIKE '%${search[key]}%'`;
-      arr.push(str);
+      if(search[key] !== '' && search[key] !== null && search[key] !== undefined){
+        let str = regParam[key]
+        ? regParam[key].replace('value', search[key])
+        : `${key} LIKE '%${search[key]}%'`;
+        arr.push(str);
+      }
     });
-    sql += ` ${where ? 'WHERE' : ''} ` + arr.join(' AND ');
+    sql += ` ${where ? 'WHERE' : 'AND'} ` + arr.join(' AND ');
   }
   if (sort !== null) {
     Object.keys(sort).map((key) => {

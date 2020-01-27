@@ -32,10 +32,10 @@ const getOrderById = (orderId, userId) => {
 };
 
 const createOrder = (userId, data) => {
-  const { hotel_id, room_type_id, room_count, guest_count, duration, check_in, check_out, cost, subtotal } = data;
-  const sql = 'INSERT INTO hotel_orders(user_id, hotel_id, room_type_id, room_count, guest_count, duration, check_in, check_out, cost, subtotal) VALUES(?,?,?,?,?,?,?,?,?,?)';
+  const { hotel_id, room_type_id, room_count, guest_count, duration, message, check_in, check_out, cost, subtotal } = data;
+  const sql = 'INSERT INTO hotel_orders(user_id, hotel_id, room_type_id, room_count, guest_count, duration, message, check_in, check_out, cost, subtotal) VALUES(?,?,?,?,?,?,?,?,?,?,?)';
   return new Promise((resolve, reject) => {
-    conn.query(sql, [userId, hotel_id, room_type_id, room_count, guest_count, duration, check_in, check_out, cost, subtotal], (err, res) => {
+    conn.query(sql, [userId, hotel_id, room_type_id, room_count, guest_count, duration, message, check_in, check_out, cost, subtotal], (err, res) => {
       if (err) reject(err);
       resolve(res);
     });

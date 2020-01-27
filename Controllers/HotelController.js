@@ -22,7 +22,7 @@ const getHotels = async (req, res) => {
   var numPages;
   var skip = (currentPage - 1) * numPerPage;
 
-  await Hotel.getHotelsCount(search, sort).then((result) => {
+  await Hotel.getHotelsCount(search, null).then((result) => {
     numRows = result[0].hotelCount;
     numPages = Math.ceil(numRows / numPerPage);
   }).catch((error) => response(res, 200, false, 'Error At Fetching Hotel Count.', error));
@@ -36,8 +36,10 @@ const getHotels = async (req, res) => {
       return response(res, 200, true, 'Data Found - Redis Cache', resultJSON);
     }
     else {
-      const hotels = await Hotel.getHotels(search, sort, limit);
+
+      const hotels = await Hotel.getHotels(search, null, limit);
       if (hotels) {
+
         for (let i = 0; i < hotels.length; i++) {
           // eslint-disable-next-line no-await-in-loop
           const cheapestRoom = await HotelRooms.getCheapestRooms(hotels[i].id);

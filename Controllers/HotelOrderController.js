@@ -3,16 +3,25 @@ const moment = require('moment');
 const {
 	response, dateRange
 } = require('../Utils');
-const { HotelOrder, HotelRooms, Balance, BalanceHistories } = require('../Services');
+const {Hotel, RoomTypes, HotelOrder, HotelRooms, Balance, BalanceHistories } = require('../Services');
 
 const getOrders = async (req, res) => {
 	const { id } = req.auth;
-	await HotelOrder.getOrders(id).then((result) => {
+	await HotelOrder.getOrders(id).then(async (result) => {
 		if (result.length > 0) {
+			for(let i = 0; i < result.length; i++){
+				const hotel = await Hotel.getHotelById(result[i].hotel_id);
+				const room = await RoomTypes.getRoomType(result[i].room_type_id);
+				var hotelName = hotel;
+				var roomName = room;
+				result[i].hotel = hotelName[0].name;
+				result[i].room = roomName[0].name;
+			}
+			console.log(hotelName, roomName)
 			return response(res, 200, true, 'Data Found.', result);
 		}
 		else {
-			return response(res, 200, true, 'Data Not Found.');
+			return response(res, 200, true, 'Your Order List Is Empty.');
 		}
 	}).catch((error) => response(res, 200, false, 'Error At Fetching User Hotel Order.', error));
 };
@@ -24,7 +33,7 @@ const getOrderHistories = async (req, res) => {
 			return response(res, 200, true, 'Data Found.', result);
 		}
 		else {
-			return response(res, 200, true, 'Data Not Found.');
+			return response(res, 200, true, 'Your Order History Is Empty.');
 		}
 	}).catch((error) => response(res, 200, false, 'Error At Fetching Order Histories.', error));
 };
@@ -52,7 +61,7 @@ const createOrder = async (req, res) => {
 	req.body.subtotal = roomCost[0].cost * dateRange(req.body.check_out, req.body.check_in);
 	req.body.duration = dateRange(req.body.check_out, req.body.check_in);
 	req.body.check_in = moment().format(req.body.check_in);
-	req.body.check_out = moment().format(req.body.check_out);
+	req.body.check_out = moment().format(req.body.check_out);;
 	if (userBalance[0].balance > req.body.subtotal) {
 		const userBalanceAfter = userBalance[0].balance - req.body.subtotal;
 		await HotelOrder.createOrder(id, req.body).then(async (result) => {
@@ -86,7 +95,7 @@ const createOrder = async (req, res) => {
 		}).catch((error) => response(res, 200, false, 'Error At Creating Hotel Order.', error));
 	}
 	else {
-		return response(res, 200, false, 'Insufficient User Balance. Please Top Up Your Balance First.');
+		return response(res, 200, false, 'Insufficient User Balance. Please Top Up Your Balance First.', {errno: 1});
 	}
 };
 

@@ -7,8 +7,9 @@ module.exports = {
   development: {
     client: 'mysql2',
     connection: {
+      host: '52.22.124.137',
       database: 'karcis',
-      user: 'admin',
+      user: 'root',
       password: ''
     },
     migrations: {

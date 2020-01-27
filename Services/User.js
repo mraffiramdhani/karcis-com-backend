@@ -58,7 +58,7 @@ const updateUser = (userId, data) => {
   }
   return new Promise((resolve, reject) => {
     conn.query(sql,
-      [data, userId],
+      [user, userId],
       (err, res) => {
         if (err) reject(err);
         resolve(res);

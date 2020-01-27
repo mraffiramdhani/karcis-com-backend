@@ -2,7 +2,7 @@
 const {
 	response, redis, urlParser, uploadHotelRoomImages
 } = require('../Utils');
-const { HotelRooms, RoomTypes, RoomImages, RoomAmenities, Amenity } = require('../Services');
+const { Hotel, HotelRooms, RoomTypes, RoomImages, RoomAmenities, Amenity } = require('../Services');
 
 const getHotelRooms = async (req, res) => {
   const {
@@ -33,10 +33,16 @@ const getHotelRooms = async (req, res) => {
       const rooms = await HotelRooms.getRooms(id, search, sort, limit);
       if (rooms) {
 
+        const hotel = await Hotel.getHotelById(id);
+        for(let i = 0; i < rooms.length; i++){
+          var hotelName = hotel;
+          rooms[i].hotel = hotelName[0].name;
+        }
+
         for(let i = 0; i < rooms.length; i++){
           const roomName = await RoomTypes.getRoomType(rooms[i].room_type_id);
           const name = roomName;
-          rooms[i].name = name[0].name
+          rooms[i].name = name[0].name;
         }
 
       	for(let i = 0; i < rooms.length; i++){
@@ -88,6 +94,16 @@ const getHotelRoomById = async (req, res) => {
   const { id, roomId } = req.params;
   await HotelRooms.getRoom(roomId, id).then(async (result) => {
     if (result.length > 0) {
+
+      const hotel = await Hotel.getHotelById(id);
+      var hotelName = hotel;
+      result[0].hotel = hotelName[0].name;
+    
+      const room = await RoomTypes.getRoomType(result[0].room_type_id);
+      var roomName = room;
+      result[0].name = roomName[0].name;
+      console.log(result);
+
       const roomImages = await RoomImages.getImages(id, result[0].room_type_id);
       if(roomImages) {
         result[0].images =  roomImages;

@@ -2,7 +2,7 @@
 // eslint-disable-next-line camelcase
 const { forgot_password } = require('../Utils/email');
 const {
-  response, signToken, compareHashedString, sendEmail, generateOTP
+  response, signToken, compareHashedString, sendEmail, generateOTP, uploadProfileImage
 } = require('../Utils');
 const { User, Token, OTP, Balance, BalanceHistories } = require('../Services');
 
@@ -131,11 +131,48 @@ const resetPassword = async (req, res) => {
   }).catch((error) => response(res, 200, false, 'Error At Validating User Email.', error));
 };
 
+const getProfile = async (req, res) => {
+  const { id } = req.auth;
+  await User.getUserById(id).then((result) => {
+    if(result.length > 0) {
+      return response(res, 200, true, 'Data Found.', result[0]);
+    }
+    else {
+      return response(res, 200, false, 'Fetching User Profile Failed. Please Try Again.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Fetching User Profile', error));
+};
+
+const updateProfile = async (req, res) => {
+  const { id } = req.auth;
+  var data = {};
+  await uploadProfileImage(req).then(async (result) => {
+    data = result;
+    await User.updateUser(id, data).then(async (_result) => {
+      if(_result.affectedRows > 0) {
+        await User.getUserById(id).then((__result) => {
+          if(__result.length > 0) {
+            return response(res, 200, true, 'User Profile Updated Successfuly.', __result[0]);
+          }
+          else {
+            return response(res, 200, false, 'Fetching User Profile Failed. Please Try Again.');
+          }
+        }).catch((error) => response(res, 200, false, 'Error At Fetching User Profile.', error));
+      }
+      else {
+        return response(res, 200, false, 'Updating User Profile Failed. Please Try Again.');
+      }
+    }).catch((error) => response(res, 200, false, 'Error At Updating User Profile', error));
+  }).catch((error) => response(res, 200, false, 'Error At Uploading User Profile Image.', error));
+};
+
 module.exports = {
   register,
   login,
   logout,
   forgotPassword,
   checkOTP,
-  resetPassword
+  resetPassword,
+  getProfile,
+  updateProfile
 };

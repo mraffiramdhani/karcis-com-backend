@@ -17,7 +17,6 @@ const getOrders = async (req, res) => {
 				result[i].hotel = hotelName[0].name;
 				result[i].room = roomName[0].name;
 			}
-			console.log(hotelName, roomName)
 			return response(res, 200, true, 'Data Found.', result);
 		}
 		else {
@@ -28,8 +27,16 @@ const getOrders = async (req, res) => {
 
 const getOrderHistories = async (req, res) => {
 	const { id } = req.auth;
-	await HotelOrder.getOrderHistories(id).then((result) => {
+	await HotelOrder.getOrderHistories(id).then(async (result) => {
 		if (result.length > 0) {
+			for(let i = 0; i < result.length; i++){
+				const hotel = await Hotel.getHotelById(result[i].hotel_id);
+				const room = await RoomTypes.getRoomType(result[i].room_type_id);
+				var hotelName = hotel;
+				var roomName = room;
+				result[i].hotel = hotelName[0].name;
+				result[i].room = roomName[0].name;
+			}
 			return response(res, 200, true, 'Data Found.', result);
 		}
 		else {
@@ -41,8 +48,16 @@ const getOrderHistories = async (req, res) => {
 const getOrder = async (req, res) => {
 	const { id } = req.auth;
 	const { orderId } = req.params;
-	await HotelOrder.getOrderById(orderId, id).then((result) => {
+	await HotelOrder.getOrderById(orderId, id).then(async (result) => {
 		if (result.length > 0) {
+			for(let i = 0; i < result.length; i++){
+				const hotel = await Hotel.getHotelById(result[i].hotel_id);
+				const room = await RoomTypes.getRoomType(result[i].room_type_id);
+				var hotelName = hotel;
+				var roomName = room;
+				result[i].hotel = hotelName[0].name;
+				result[i].room = roomName[0].name;
+			}
 			return response(res, 200, true, 'Data Found.', result);
 		}
 		else {

@@ -25,14 +25,16 @@ router
   .post('/password', AuthController.forgotPassword)
   .post('/password/reset', AuthController.resetPassword)
   .post('/otp/check', AuthController.checkOTP)
-  .get('/logout', auth, AuthController.logout);
+  .get('/logout', auth, AuthController.logout)
+  .get('/u/profile', auth, AuthController.getProfile)
+  .patch('/u/profile', auth, AuthController.updateProfile);
 
 // User Routes
 router
   .get('/user', UserController.getUsers)
   .get('/user/:id', UserController.getUserById)
   .post('/user', auth, hasRole('administrator'), UserController.createUser)
-  .patch('/user/:id', auth, hasRole(['administrator', 'customer']), UserController.updateUser)
+  .patch('/user/:id', auth, hasRole('administrator'), UserController.updateUser)
   .delete('/user/:id', auth, hasRole('administrator'), UserController.deleteUser);
 
 // Hotel Routes

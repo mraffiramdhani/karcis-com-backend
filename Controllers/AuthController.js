@@ -57,7 +57,7 @@ const login = async (req, res) => {
           // eslint-disable-next-line camelcase
           const { id, first_name, last_name, role_id } = result[0];
           const token = signToken({
-            id, first_name, last_name, email, role_id
+            id, first_name, last_name, email, role_id: 2
           });
           await Token.putToken(token).then(() => response(res, 200, true, 'Login Success.', {
             token, first_name, last_name, email

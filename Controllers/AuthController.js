@@ -19,6 +19,7 @@ const register = async (req, res) => {
     return response(res, 200, false, 'Please Provide a Valid Data.');
   }
   else {
+    data.role_id = 2;
     await User.createUser(data).then(async (result) => {
       const id = result.insertId;
       await Balance.createBalance(id).then(async (balance) => {

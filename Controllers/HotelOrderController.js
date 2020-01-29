@@ -75,8 +75,8 @@ const createOrder = async (req, res) => {
 	req.body.cost = roomCost[0].cost;
 	req.body.subtotal = roomCost[0].cost * dateRange(req.body.check_out, req.body.check_in);
 	req.body.duration = dateRange(req.body.check_out, req.body.check_in);
-	req.body.check_in = moment().format(req.body.check_in);
-	req.body.check_out = moment().format(req.body.check_out);;
+	req.body.check_in = new Date(req.body.check_in);
+	req.body.check_out = new Date(req.body.check_out);
 	if (userBalance[0].balance > req.body.subtotal) {
 		const userBalanceAfter = userBalance[0].balance - req.body.subtotal;
 		await HotelOrder.createOrder(id, req.body).then(async (result) => {

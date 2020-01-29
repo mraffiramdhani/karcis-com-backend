@@ -33,6 +33,7 @@ router
 router
   .get('/user', UserController.getUsers)
   .get('/user/:id', UserController.getUserById)
+  .post('/user/email/check', UserController.getUserByEmail)
   .post('/user', auth, hasRole('administrator'), UserController.createUser)
   .patch('/user/:id', auth, hasRole('administrator'), UserController.updateUser)
   .delete('/user/:id', auth, hasRole('administrator'), UserController.deleteUser);

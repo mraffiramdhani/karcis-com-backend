@@ -22,10 +22,10 @@ const getUserById = (userId) => {
   });
 };
 
-const getUserByEmail = (username) => {
+const getUserByEmail = (email) => {
   const sql = 'SELECT * FROM users WHERE email = ?';
   return new Promise((resolve, reject) => {
-    conn.query(sql, [username], (err, res) => {
+    conn.query(sql, [email], (err, res) => {
       if (err) reject(err);
       resolve(res);
     });

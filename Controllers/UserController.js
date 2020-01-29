@@ -43,6 +43,18 @@ const getUserById = async (req, res) => {
   }).catch((error) => response(res, 200, false, 'Error At Validating User', error));
 };
 
+const getUserByEmail = async (req, res) => {
+  const { email } = req.body;
+  await User.getUserByEmail(email).then((result) => {
+    if (result.length > 0) {
+      return response(res, 200, true, 'Email Is Already Exist. Please Try Another Email.');
+    }
+    else {
+      return response(res, 200, true, 'Email Is Valid.');
+    }
+  }).catch((error) => response(res, 200, false, 'Error At Validating User Email.', error));
+};
+
 // eslint-disable-next-line consistent-return
 const createUser = async (req, res) => {
   let data = {};
@@ -109,6 +121,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
   getUsers,
   getUserById,
+  getUserByEmail,
   createUser,
   updateUser,
   deleteUser

@@ -2,7 +2,7 @@
 const conn = require('./db');
 
 const getOrders = (userId) => {
-  const sql = 'SELECT * FROM hotel_orders WHERE user_id = ? AND is_complete = 0 AND is_canceled = 0 AND CURDATE() <= check_in';
+  const sql = 'SELECT * FROM hotel_orders WHERE user_id = ? AND is_complete = 0 AND is_canceled = 0 AND date_sub(CURDATE(), interval 1 day) <= check_in';
   return new Promise((resolve, reject) => {
     conn.query(sql, [userId], (err, res) => {
       if (err) reject(err);

@@ -149,6 +149,7 @@ const updateProfile = async (req, res) => {
   var data = {};
   await uploadProfileImage(req).then(async (result) => {
     data = result;
+    data.role_id = 2;
     await User.updateUser(id, data).then(async (_result) => {
       if(_result.affectedRows > 0) {
         await User.getUserById(id).then((__result) => {

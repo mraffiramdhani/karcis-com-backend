@@ -12,7 +12,7 @@ const getOrders = (userId) => {
 };
 
 const getOrderHistories = (userId) => {
-  const sql = 'SELECT * FROM hotel_orders WHERE (is_complete = 1 OR is_canceled = 1) AND user_id = ?';
+  const sql = 'SELECT * FROM hotel_orders WHERE (is_complete = 1 OR is_canceled = 1 OR date_sub(CURDATE(), interval 1 day) >= check_in) AND user_id = ?';
   return new Promise((resolve, reject) => {
     conn.query(sql, [userId], (err, res) => {
       if(err) reject(err);
